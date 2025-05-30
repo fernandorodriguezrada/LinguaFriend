@@ -144,4 +144,10 @@
 
 .bg-pastel-pink { background-color: hsl(var(--pastel-pink)); }
 .bg-pastel-green { background-color: hsl(var(--pastel-green)); }
-/* etc. for background colors if needed */
+.bg-pastel-yellow { background-color: hsl(var(--pastel-yellow)); }
+.bg-pastel-purple { background-color: hsl(var(--pastel-purple)); }
+.bg-pastel-blue { background-color: hsl(var(--pastel-blue)); }
+.bg-pastel-orange { background-color: hsl(var(--pastel-orange)); }
+.bg-pastel-gray { background-color: hsl(var(--pastel-gray)); }
+.bg-pastel-teal { background-color: hsl(var(--pastel-teal)); }
+.bg-pastel-lime { background-color: hsl(var(--pastel-lime)); }

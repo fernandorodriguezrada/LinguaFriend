@@ -1,16 +1,16 @@
 
 'use client';
 
-import type { ExtendedAnalyzeSentenceOutput } from '@/lib/types'; // Updated type
+import type { ExtendedAnalyzeSentenceOutput } from '@/lib/types';
 import type { FeatureToggleState } from '@/lib/types';
 import { WordCard } from './WordCard';
-import { ColorCodedSentence } from './ColorCodedSentence'; // New component
+import { ColorCodedSentence, GrammarLegend } from './ColorCodedSentence';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CheckCircle2, BookMarked, ListTree, MessageSquareQuote } from 'lucide-react';
 
 interface AnalysisDisplayProps {
-  analysis: ExtendedAnalyzeSentenceOutput; // Updated type
+  analysis: ExtendedAnalyzeSentenceOutput;
   featureToggles: FeatureToggleState;
 }
 
@@ -35,21 +35,22 @@ export function AnalysisDisplay({ analysis, featureToggles }: AnalysisDisplayPro
         <CardContent className="space-y-4">
           {sentenceParts && sentenceParts.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold font-headline text-foreground/90">Oración Analizada:</h3>
+              <h3 className="text-lg font-semibold font-headline text-foreground/90 mb-1">Oración Analizada:</h3>
               <ColorCodedSentence sentenceParts={sentenceParts} />
+              <GrammarLegend />
             </div>
           )}
           <div>
-            <h3 className="text-lg font-semibold font-headline text-foreground/90">Tiempo Verbal:</h3>
+            <h3 className="text-lg font-semibold font-headline text-foreground/90 mt-3">Tiempo Verbal:</h3>
             <p className="text-muted-foreground whitespace-pre-line">{tense}</p>
           </div>
           <div>
-            <h3 className="text-lg font-semibold font-headline text-foreground/90">Análisis Gramatical General:</h3>
+            <h3 className="text-lg font-semibold font-headline text-foreground/90 mt-3">Análisis Gramatical General:</h3>
             <p className="text-muted-foreground whitespace-pre-line">{grammarBreakdown}</p>
           </div>
           {idiomExplanation && (
             <div>
-              <h3 className="text-lg font-semibold font-headline text-foreground/90 flex items-center gap-2">
+              <h3 className="text-lg font-semibold font-headline text-foreground/90 mt-3 flex items-center gap-2">
                 <MessageSquareQuote className="h-5 w-5 text-primary" />
                 Contexto Cultural / Modismos:
               </h3>
