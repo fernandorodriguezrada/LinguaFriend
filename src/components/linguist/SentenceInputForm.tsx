@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -31,7 +32,7 @@ function SubmitButton() {
 }
 
 export function SentenceInputForm({ onAnalysisResult, initialState, serverAction }: SentenceInputFormProps) {
-  const [state, formAction] = useFormState(serverAction, initialState);
+  const [state, formAction] = useActionState(serverAction, initialState);
   const { toast } = useToast();
   const formRef = React.useRef<HTMLFormElement>(null);
 
