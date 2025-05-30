@@ -36,19 +36,30 @@ export default function LinguaFriendPage() {
       if (result.error) {
         setError(result.error);
         setAnalysisResult(null);
-        setCurrentSentence(result.originalSentence || ''); 
+        setCurrentSentence(result.originalSentence || '');
       } else if (result.data) {
         setAnalysisResult(result.data);
         setCurrentSentence(result.originalSentence || '');
         setError(null);
       } else {
-        setError("Respuesta inesperada del servidor.");
-        setAnalysisResult(null);
-        setCurrentSentence(result.originalSentence || '');
+        // This block is hit if result.error is null AND result.data is null.
+        // Only set an error if an actual submission likely occurred.
+        if (result.originalSentence && result.originalSentence !== '') {
+          // An original sentence was provided, but no data or error came back.
+          setError("Respuesta inesperada del servidor.");
+          setAnalysisResult(null);
+          setCurrentSentence(result.originalSentence);
+        } else {
+          // No original sentence, no data, no error. This is likely the initial state.
+          // Do not set an error. Ensure UI remains in a clean initial state.
+          setError(null);
+          setAnalysisResult(null);
+          setCurrentSentence('');
+        }
       }
     });
   }, [startTransition]);
-  
+
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -92,7 +103,7 @@ export default function LinguaFriendPage() {
                 <AnalysisDisplay analysis={analysisResult} featureToggles={featureToggles} />
               </>
             )}
-            
+
             {!isPending && !error && !analysisResult && (
                 <Card className="shadow-md">
                     <CardContent className="p-10 text-center">
