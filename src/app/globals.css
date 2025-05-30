@@ -51,30 +51,30 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Pastel colors for grammar highlighting */
-    --pastel-pink: 350 100% 90%; /* Softer than accent */
-    --pastel-green: 145 58% 85%; /* Mint green */
-    --pastel-yellow: 50 100% 85%;
-    --pastel-purple: 260 100% 90%;
-    --pastel-blue: 200 100% 88%; /* Different from primary */
-    --pastel-orange: 30 100% 85%;
-    --pastel-gray: 210 20% 80%;
-    --pastel-teal: 170 50% 85%;
-    --pastel-lime: 90 70% 85%;
+    /* Pastel colors for grammar highlighting - Light Mode (Darker for better contrast) */
+    --pastel-pink: 350 100% 78%;
+    --pastel-green: 145 58% 70%;
+    --pastel-yellow: 50 100% 75%;
+    --pastel-purple: 260 100% 80%;
+    --pastel-blue: 200 100% 78%;
+    --pastel-orange: 30 100% 75%;
+    --pastel-gray: 210 15% 65%; /* Conjunction */
+    --pastel-teal: 170 50% 70%;
+    --pastel-lime: 90 60% 70%;
   }
 
   .dark {
     --background: 210 20% 10%; /* Very dark blue */
-    --foreground: 213 100% 91%; /* Light blue */
+    --foreground: 213 100% 94%; /* Light blue - slightly more luminous for punctuation visibility */
 
     --muted: 210 15% 14.9%;
     --muted-foreground: 210 10% 63.9%;
 
     --popover: 210 20% 10%; /* Very dark blue */
-    --popover-foreground: 213 100% 91%; /* Light blue */
+    --popover-foreground: 213 100% 94%; /* Light blue */
 
     --card: 210 20% 15%; /* Slightly lighter than dark background */
-    --card-foreground: 213 100% 91%; /* Light blue */
+    --card-foreground: 213 100% 94%; /* Light blue */
 
     --border: 210 20% 25%;
     --input: 210 20% 20%;
@@ -108,16 +108,16 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Dark theme pastel colors */
-    --pastel-pink: 350 70% 55%;
-    --pastel-green: 145 40% 50%;
-    --pastel-yellow: 50 70% 50%;
-    --pastel-purple: 260 70% 60%;
-    --pastel-blue: 200 70% 58%;
-    --pastel-orange: 30 70% 55%;
-    --pastel-gray: 210 15% 50%;
-    --pastel-teal: 170 35% 50%;
-    --pastel-lime: 90 50% 50%;
+    /* Dark theme pastel colors - Adjusted for visibility */
+    --pastel-pink: 350 70% 60%; /* Made slightly lighter */
+    --pastel-green: 145 40% 55%; /* Made slightly lighter */
+    --pastel-yellow: 50 70% 55%; /* Made slightly lighter */
+    --pastel-purple: 260 70% 65%; /* Made slightly lighter */
+    --pastel-blue: 200 70% 62%; /* Made slightly lighter */
+    --pastel-orange: 30 70% 60%; /* Made slightly lighter */
+    --pastel-gray: 210 15% 70%; /* Conjunction - Made significantly lighter */
+    --pastel-teal: 170 35% 55%; /* Made slightly lighter */
+    --pastel-lime: 90 50% 55%; /* Made slightly lighter */
   }
 }
 
@@ -151,3 +151,4 @@
 .bg-pastel-gray { background-color: hsl(var(--pastel-gray)); }
 .bg-pastel-teal { background-color: hsl(var(--pastel-teal)); }
 .bg-pastel-lime { background-color: hsl(var(--pastel-lime)); }
+
