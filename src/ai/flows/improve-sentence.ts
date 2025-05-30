@@ -55,9 +55,11 @@ Has Improvements: true
 
 Example of a correct sentence:
 Original Sentence: "They are playing soccer."
-Improved Sentence: "They are playing soccer."
+ImprovedSentence: "They are playing soccer."
 Explanation: "La oración es gramaticalmente correcta y suena natural."
 Has Improvements: false
+
+Return ONLY the JSON object that conforms to the ImproveSentenceOutputSchema. Do not include any preamble, conversational text, or any other characters outside of the JSON structure itself.
   `,
 });
 
