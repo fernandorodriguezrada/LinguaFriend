@@ -23,7 +23,7 @@ export type AnalyzeSentenceInput = z.infer<typeof AnalyzeSentenceInputSchema>;
 
 // Define the output schema
 const AnalyzeSentenceOutputSchema = z.object({
-  tense: z.string().describe('El tiempo verbal de la oración (ej. Presente Perfecto), incluyendo el término en inglés entre paréntesis.'),
+  tense: z.string().describe('El tiempo verbal de la oración (ej. Presente Perfecto), incluyendo el término en inglés entre paréntesis, su fórmula, explicación de uso y un ejemplo con la oración original.'),
   grammarBreakdown: z.string().describe('La estructura gramatical de la oración, explicada en español, incluyendo términos clave en inglés entre paréntesis.'),
   wordAnalysis: z.array(
     z.object({
@@ -75,10 +75,17 @@ Los sinónimos deben permanecer en inglés, ya que son listas de palabras asocia
 
 Oración: {{{sentence}}}
 
-Identifica el tiempo verbal de la oración.
-Proporciona un desglose gramatical de la oración.
-Proporciona un análisis de cada palabra, incluyendo su categoría gramatical (rol), definición, sinónimos y consejos de uso. Sigue las pautas de idioma y de inclusión de términos en inglés entre paréntesis mencionadas anteriormente para cada campo.
+Para el campo "tense":
+1. Identifica el tiempo verbal de la oración. Proporciona el nombre del tiempo verbal en español, seguido del término en inglés entre paréntesis (ej. Presente Perfecto (Present Perfect)).
+2. Describe la estructura o fórmula gramatical de este tiempo verbal (ej. Sujeto + 'have/has' + participio pasado (Subject + 'have/has' + past participle)).
+3. Explica brevemente el uso principal de este tiempo verbal en español.
+4. Vuelve a escribir la oración original "{{{sentence}}}" como un ejemplo práctico, destacando cómo aplica la fórmula y el uso del tiempo verbal identificado. Por ejemplo, si la oración es "She has eaten an apple" y el tiempo es Presente Perfecto, podrías decir: "Ejemplo en la oración '{{{sentence}}}': 'She (Sujeto) has (auxiliar 'have/has') eaten (participio pasado de 'eat') an apple'. Esto muestra una acción completada recientemente relacionada con el presente."
 
+Para el campo "grammarBreakdown":
+Proporciona un desglose gramatical general de la oración, siguiendo las pautas de idioma y de inclusión de términos en inglés entre paréntesis.
+
+Para el campo "wordAnalysis":
+Proporciona un análisis de cada palabra, incluyendo su categoría gramatical (rol), definición, sinónimos y consejos de uso. Sigue las pautas de idioma y de inclusión de términos en inglés entre paréntesis mencionadas anteriormente para cada campo.
 Utiliza la herramienta getWordDetails para obtener más información sobre palabras individuales cuando sea necesario. La herramienta también debe devolver la definición y los consejos de uso en español, siguiendo la misma pauta de incluir términos en inglés entre paréntesis cuando sea apropiado.
 
 Formatea tu respuesta como un objeto JSON que coincida con el esquema proporcionado.
