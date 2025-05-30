@@ -88,8 +88,8 @@ export default function LinguaFriendPage() {
 
             {!isPending && !error && analysisResult && (
               <>
-                <AnalysisDisplay analysis={analysisResult} featureToggles={featureToggles} />
                 <TranslationDisplay originalSentence={currentSentence} />
+                <AnalysisDisplay analysis={analysisResult} featureToggles={featureToggles} />
               </>
             )}
             
@@ -113,3 +113,4 @@ export default function LinguaFriendPage() {
     </div>
   );
 }
+
