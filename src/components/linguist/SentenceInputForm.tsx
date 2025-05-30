@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { SendHorizonal, Loader2 } from 'lucide-react';
 import type { ActionState } from '@/app/actions';
+import type { FeatureToggleState } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
 
@@ -16,6 +17,7 @@ interface SentenceInputFormProps {
   onAnalysisResult: (result: ActionState) => void;
   initialState: ActionState;
   serverAction: (prevState: ActionState | undefined, formData: FormData) => Promise<ActionState>;
+  currentFeatureToggles: FeatureToggleState;
 }
 
 function SubmitButton() {
@@ -32,7 +34,7 @@ function SubmitButton() {
   );
 }
 
-export function SentenceInputForm({ onAnalysisResult, initialState, serverAction }: SentenceInputFormProps) {
+export function SentenceInputForm({ onAnalysisResult, initialState, serverAction, currentFeatureToggles }: SentenceInputFormProps) {
   const [state, formAction] = useActionState(serverAction, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
@@ -47,21 +49,22 @@ export function SentenceInputForm({ onAnalysisResult, initialState, serverAction
           title: "Error de Análisis",
           description: state.error,
         });
-      } else if (state.data) {
+      } else if (state.data || state.improvementData?.hasImprovements) {
          toast({
           title: "Análisis Completo",
-          description: "La oración ha sido analizada exitosamente.",
+          description: "La oración ha sido procesada.",
         });
-        formRef.current?.reset(); 
-        setInputValue(''); // Clear the controlled input state
+        formRef.current?.reset();
+        setInputValue('');
       }
     }
   }, [state, onAnalysisResult, toast]);
 
   const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let value = e.target.value;
-    if (value.length > 0) {
-      // Capitalize the first letter, leave the rest as is
+    // Remove multiple spaces
+    value = value.replace(/\s\s+/g, ' ');
+    if (value.length > 0 && value !== " ") {
       value = value.charAt(0).toUpperCase() + value.slice(1);
     }
     setInputValue(value);
@@ -69,25 +72,35 @@ export function SentenceInputForm({ onAnalysisResult, initialState, serverAction
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault(); // Prevent adding a new line
-      if (formRef.current && inputValue.trim() !== '') { // Only submit if not empty
-        formRef.current.requestSubmit();
-      } else if (inputValue.trim() === '') {
-        // Optionally, show a toast or message if trying to submit an empty sentence with Enter
-        // For now, we rely on the `required` attribute and server-side validation.
+      e.preventDefault();
+      if (formRef.current && inputValue.trim() !== '') {
+        const formData = new FormData(formRef.current);
+        // Manually append toggles that are not direct form elements if needed by action
+        formData.set('eli5Mode', currentFeatureToggles.eli5Mode ? 'on' : 'off');
+        formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
       }
     }
   };
+  
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    // FormData will pick up "sentence" and "eli5Mode" if it's a checkbox with name
+    const formData = new FormData(event.currentTarget);
+    if (!formData.has('eli5Mode')) { // if eli5Mode switch is not a direct form child
+        formData.append('eli5Mode', currentFeatureToggles.eli5Mode ? 'on' : 'off');
+    }
+    // The formAction will be called with this formData by react-dom
+  };
+
 
   return (
-    <form ref={formRef} action={formAction} className="space-y-6">
+    <form ref={formRef} action={formAction} onSubmit={handleSubmit} className="space-y-6">
       <div>
         <Label htmlFor="sentence" className="text-lg font-medium font-headline text-foreground">
           Ingresa una oración en inglés:
         </Label>
         <Textarea
           id="sentence"
-          name="sentence" // Crucial for FormData to pick up the value
+          name="sentence"
           placeholder="Ej: She has been studying for hours."
           className="mt-2 min-h-[100px] text-base"
           value={inputValue}
@@ -95,12 +108,8 @@ export function SentenceInputForm({ onAnalysisResult, initialState, serverAction
           onKeyDown={handleKeyDown}
           required
         />
-        {state?.error && !state.error.includes("La oración no puede estar vacía") && <p className="mt-2 text-sm text-destructive">{state.error}</p>}
-        {/* The specific "cannot be empty" error is handled by the required attribute for direct display if possible,
-            or by the server action's Zod validation. Here we show other errors.
-            If input is empty and submission is attempted, HTML5 validation should prevent it due to 'required'.
-            If JS is disabled or bypasses it, server action handles it.
-        */}
+        {/* Hidden input for eli5Mode if not using a named Switch component */}
+        <input type="hidden" name="eli5Mode" value={currentFeatureToggles.eli5Mode ? 'on' : 'off'} />
       </div>
       <div className="flex justify-end">
         <SubmitButton />

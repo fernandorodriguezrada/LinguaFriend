@@ -1,15 +1,19 @@
 
 'use server';
 
-import { analyzeSentence, type AnalyzeSentenceInput, type AnalyzeSentenceOutput } from '@/ai/flows/analyze-sentence';
+import { analyzeSentence, type AnalyzeSentenceInput } from '@/ai/flows/analyze-sentence';
+import { improveSentence, type ImproveSentenceInput, type ImproveSentenceOutput } from '@/ai/flows/improve-sentence';
+import type { ExtendedAnalyzeSentenceOutput } from '@/lib/types';
 import { z } from 'zod';
 
 const AnalyzeSentenceActionSchema = z.object({
   sentence: z.string().min(1, "La oración no puede estar vacía."),
+  eli5Mode: z.preprocess(value => value === 'on' || value === true, z.boolean()).default(false),
 });
 
 export interface ActionState {
-  data: AnalyzeSentenceOutput | null;
+  data: ExtendedAnalyzeSentenceOutput | null;
+  improvementData: ImproveSentenceOutput | null;
   error: string | null;
   message?: string;
   originalSentence?: string;
@@ -21,6 +25,7 @@ export async function handleAnalyzeSentence(
 ): Promise<ActionState> {
   const rawFormData = {
     sentence: formData.get('sentence') as string,
+    eli5Mode: formData.get('eli5Mode') // This will be 'on' or null from checkbox, or boolean if set directly
   };
 
   const validationResult = AnalyzeSentenceActionSchema.safeParse(rawFormData);
@@ -28,21 +33,47 @@ export async function handleAnalyzeSentence(
   if (!validationResult.success) {
     return {
       data: null,
+      improvementData: null,
       error: validationResult.error.errors.map((err) => err.message).join(', '),
-      originalSentence: rawFormData.sentence, 
+      originalSentence: rawFormData.sentence,
     };
   }
 
-  const input: AnalyzeSentenceInput = { sentence: validationResult.data.sentence };
+  const { sentence, eli5Mode } = validationResult.data;
+  const analysisInput: AnalyzeSentenceInput = { sentence, eli5Mode };
+  const improvementInput: ImproveSentenceInput = { sentence };
 
   try {
-    const result = await analyzeSentence(input);
-    if (!result) {
-      return { data: null, error: 'No se pudo obtener el análisis. Inténtalo de nuevo.', originalSentence: validationResult.data.sentence };
+    // Perform analysis and improvement in parallel
+    const [analysisResult, improvementResult] = await Promise.all([
+      analyzeSentence(analysisInput),
+      improveSentence(improvementInput)
+    ]);
+
+    if (!analysisResult && sentence) { 
+      return { 
+        data: null, 
+        improvementData: improvementResult || null,
+        error: 'Respuesta inesperada del servidor al analizar. Inténtalo de nuevo.', 
+        originalSentence: sentence 
+      };
     }
-    return { data: result, error: null, originalSentence: validationResult.data.sentence };
+    
+    return { 
+      data: analysisResult, 
+      improvementData: improvementResult || null,
+      error: null, 
+      originalSentence: sentence 
+    };
+
   } catch (e) {
     console.error(e);
-    return { data: null, error: 'Ocurrió un error al analizar la oración. Por favor, inténtalo más tarde.', originalSentence: validationResult.data.sentence };
+    const errorMessage = e instanceof Error ? e.message : 'Ocurrió un error desconocido.';
+    return { 
+        data: null, 
+        improvementData: null,
+        error: `Ocurrió un error al procesar la oración: ${errorMessage}. Por favor, inténtalo más tarde.`, 
+        originalSentence: sentence 
+    };
   }
 }

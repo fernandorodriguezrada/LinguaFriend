@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -19,13 +20,13 @@
     --border: 210 50% 80%; /* Lighter blue for borders */
     --input: 210 50% 85%; /* Similar to border for input fields */
 
-    --primary: 210 100% 75%; /* Soft blue */
+    --primary: 210 100% 75%; /* Soft blue (#7FB5FF) */
     --primary-foreground: 210 100% 15%; /* Very dark blue */
 
     --secondary: 210 60% 85%; /* A slightly different shade of blue */
     --secondary-foreground: 210 100% 15%; /* Very dark blue */
 
-    --accent: 350 100% 86%; /* Soft pink */
+    --accent: 350 100% 86%; /* Soft pink (#FFB6C1) */
     --accent-foreground: 350 100% 25%; /* Dark pink/maroon */
     
     --destructive: 0 84.2% 60.2%;
@@ -49,6 +50,17 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Pastel colors for grammar highlighting */
+    --pastel-pink: 350 100% 90%; /* Softer than accent */
+    --pastel-green: 145 58% 85%; /* Mint green */
+    --pastel-yellow: 50 100% 85%;
+    --pastel-purple: 260 100% 90%;
+    --pastel-blue: 200 100% 88%; /* Different from primary */
+    --pastel-orange: 30 100% 85%;
+    --pastel-gray: 210 20% 80%;
+    --pastel-teal: 170 50% 85%;
+    --pastel-lime: 90 70% 85%;
   }
 
   .dark {
@@ -95,6 +107,17 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Dark theme pastel colors */
+    --pastel-pink: 350 70% 55%;
+    --pastel-green: 145 40% 50%;
+    --pastel-yellow: 50 70% 50%;
+    --pastel-purple: 260 70% 60%;
+    --pastel-blue: 200 70% 58%;
+    --pastel-orange: 30 70% 55%;
+    --pastel-gray: 210 15% 50%;
+    --pastel-teal: 170 35% 50%;
+    --pastel-lime: 90 50% 50%;
   }
 }
 
@@ -107,3 +130,18 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+/* Utility classes for pastel colors */
+.text-pastel-pink { color: hsl(var(--pastel-pink)); }
+.text-pastel-green { color: hsl(var(--pastel-green)); }
+.text-pastel-yellow { color: hsl(var(--pastel-yellow)); }
+.text-pastel-purple { color: hsl(var(--pastel-purple)); }
+.text-pastel-blue { color: hsl(var(--pastel-blue)); }
+.text-pastel-orange { color: hsl(var(--pastel-orange)); }
+.text-pastel-gray { color: hsl(var(--pastel-gray)); }
+.text-pastel-teal { color: hsl(var(--pastel-teal)); }
+.text-pastel-lime { color: hsl(var(--pastel-lime)); }
+
+.bg-pastel-pink { background-color: hsl(var(--pastel-pink)); }
+.bg-pastel-green { background-color: hsl(var(--pastel-green)); }
+/* etc. for background colors if needed */
