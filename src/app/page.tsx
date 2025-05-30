@@ -111,7 +111,7 @@ export default function LinguaFriendPage() {
                         <p className="mt-2 text-muted-foreground">
                             Escribe una oración en inglés en el panel de la izquierda y presiona "Analizar Oración" para comenzar.
                         </p>
-                         <img src="https://placehold.co/600x400.png" alt="Placeholder representing learning" data-ai-hint="learning education" className="mt-6 rounded-lg mx-auto shadow-lg" />
+                         <img src="https://placehold.co/600x400.png" alt="Image illustrating confusing English words" data-ai-hint="english words" className="mt-6 rounded-[10px] mx-auto shadow-lg border-2 border-primary/90" />
                     </CardContent>
                 </Card>
             )}
