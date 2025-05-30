@@ -52,29 +52,29 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* Pastel colors for grammar highlighting - Light Mode (Darker for better contrast) */
-    --pastel-pink: 350 100% 78%;
-    --pastel-green: 145 58% 70%;
-    --pastel-yellow: 50 100% 75%;
-    --pastel-purple: 260 100% 80%;
-    --pastel-blue: 200 100% 78%;
-    --pastel-orange: 30 100% 75%;
+    --pastel-pink: 350 100% 78%; /* Verb */
+    --pastel-green: 140 60% 68%; /* Noun - Adjusted for distinctiveness */
+    --pastel-yellow: 50 100% 68%; /* Adjective - Darker for light mode */
+    --pastel-purple: 260 100% 80%; /* Adverb */
+    --pastel-blue: 200 100% 78%; /* Pronoun */
+    --pastel-orange: 30 100% 75%; /* Preposition */
     --pastel-gray: 210 15% 65%; /* Conjunction */
-    --pastel-teal: 170 50% 70%;
-    --pastel-lime: 90 60% 70%;
+    --pastel-teal: 175 55% 65%; /* Determiner - Adjusted for distinctiveness */
+    --pastel-lime: 90 60% 70%; /* Interjection */
   }
 
   .dark {
     --background: 210 20% 10%; /* Very dark blue */
-    --foreground: 213 100% 94%; /* Light blue - slightly more luminous for punctuation visibility */
+    --foreground: 213 100% 95%; /* Light blue - slightly more luminous for punctuation visibility */
 
     --muted: 210 15% 14.9%;
     --muted-foreground: 210 10% 63.9%;
 
     --popover: 210 20% 10%; /* Very dark blue */
-    --popover-foreground: 213 100% 94%; /* Light blue */
+    --popover-foreground: 213 100% 95%; /* Light blue */
 
     --card: 210 20% 15%; /* Slightly lighter than dark background */
-    --card-foreground: 213 100% 94%; /* Light blue */
+    --card-foreground: 213 100% 95%; /* Light blue */
 
     --border: 210 20% 25%;
     --input: 210 20% 20%;
@@ -109,15 +109,15 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* Dark theme pastel colors - Adjusted for visibility */
-    --pastel-pink: 350 70% 60%; /* Made slightly lighter */
-    --pastel-green: 145 40% 55%; /* Made slightly lighter */
-    --pastel-yellow: 50 70% 55%; /* Made slightly lighter */
-    --pastel-purple: 260 70% 65%; /* Made slightly lighter */
-    --pastel-blue: 200 70% 62%; /* Made slightly lighter */
-    --pastel-orange: 30 70% 60%; /* Made slightly lighter */
-    --pastel-gray: 210 15% 70%; /* Conjunction - Made significantly lighter */
-    --pastel-teal: 170 35% 55%; /* Made slightly lighter */
-    --pastel-lime: 90 50% 55%; /* Made slightly lighter */
+    --pastel-pink: 350 70% 60%; /* Verb */
+    --pastel-green: 140 45% 60%; /* Noun - Adjusted for distinctiveness & visibility */
+    --pastel-yellow: 50 80% 60%; /* Adjective - Adjusted for visibility */
+    --pastel-purple: 260 70% 65%; /* Adverb */
+    --pastel-blue: 200 70% 62%; /* Pronoun */
+    --pastel-orange: 30 70% 60%; /* Preposition */
+    --pastel-gray: 210 20% 75%; /* Conjunction - Made significantly lighter */
+    --pastel-teal: 175 40% 62%; /* Determiner - Adjusted for distinctiveness & visibility */
+    --pastel-lime: 90 50% 55%; /* Interjection */
   }
 }
 
