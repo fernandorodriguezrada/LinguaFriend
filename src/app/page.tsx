@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useTransition, useCallback } from 'react';
@@ -14,12 +15,12 @@ import { Card, CardContent } from '@/components/ui/card';
 const initialActionState: ActionState = {
   data: null,
   error: null,
+  originalSentence: '',
 };
 
 export default function LinguaFriendPage() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult>(null);
   const [currentSentence, setCurrentSentence] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false); // This state seems managed by useTransition now. Consider removal if redundant.
   const [error, setError] = useState<string | null>(null);
 
   const [featureToggles, setFeatureToggles] = useState<FeatureToggleState>({
@@ -32,23 +33,21 @@ export default function LinguaFriendPage() {
 
   const handleAnalysisFormSubmit = useCallback((result: ActionState) => {
     startTransition(() => {
-      // setIsLoading(false); // isPending from useTransition handles loading state
       if (result.error) {
         setError(result.error);
         setAnalysisResult(null);
+        setCurrentSentence(result.originalSentence || ''); 
       } else if (result.data) {
         setAnalysisResult(result.data);
-        // Attempt to reconstruct sentence for TranslationDisplay.
-        // A better approach might be to pass the original sentence back from the action or manage it more directly.
-        if (result.data.wordAnalysis && result.data.wordAnalysis.length > 0) {
-           setCurrentSentence(result.data.wordAnalysis.map(w => w.word).join(' '));
-        } else {
-           setCurrentSentence("Oración analizada"); // Fallback if sentence cannot be reconstructed
-        }
+        setCurrentSentence(result.originalSentence || '');
         setError(null);
+      } else {
+        setError("Respuesta inesperada del servidor.");
+        setAnalysisResult(null);
+        setCurrentSentence(result.originalSentence || '');
       }
     });
-  }, [startTransition, setAnalysisResult, setCurrentSentence, setError]); // Dependencies for useCallback
+  }, [startTransition]);
   
 
   return (
