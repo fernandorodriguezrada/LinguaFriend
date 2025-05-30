@@ -1,13 +1,14 @@
+
 // This is an auto-generated file from Firebase Studio.
 
 'use server';
 
 /**
- * @fileOverview Provides linguistic analysis of English sentences.
+ * @fileOverview Provides linguistic analysis of English sentences, with explanations in Spanish.
  *
- * - analyzeSentence - Analyzes a given English sentence and provides a detailed linguistic analysis.
+ * - analyzeSentence - Analyzes a given English sentence and provides a detailed linguistic analysis in Spanish.
  * - AnalyzeSentenceInput - The input type for the analyzeSentence function.
- * - AnalyzeSentenceOutput - The return type for the analyzeSentence function.
+ * - AnalyzeSentenceOutput - The return type for the analyzeSentence function, with descriptions in Spanish.
  */
 
 import {ai} from '@/ai/genkit';
@@ -22,17 +23,17 @@ export type AnalyzeSentenceInput = z.infer<typeof AnalyzeSentenceInputSchema>;
 
 // Define the output schema
 const AnalyzeSentenceOutputSchema = z.object({
-  tense: z.string().describe('The tense of the sentence (e.g., Present Perfect).'),
-  grammarBreakdown: z.string().describe('The grammatical structure of the sentence.'),
+  tense: z.string().describe('El tiempo verbal de la oración (ej. Presente Perfecto).'),
+  grammarBreakdown: z.string().describe('La estructura gramatical de la oración, explicada en español.'),
   wordAnalysis: z.array(
     z.object({
-      word: z.string().describe('The word being analyzed.'),
-      role: z.string().describe('The part of speech (e.g., verb, noun).'),
-      definition: z.string().describe('The definition of the word.'),
-      synonyms: z.array(z.string()).describe('Synonyms for the word.'),
-      usageTips: z.string().describe('Common usage tips for the word or phrase.'),
+      word: z.string().describe('La palabra que se está analizando.'),
+      role: z.string().describe('La categoría gramatical (ej. verbo, sustantivo).'),
+      definition: z.string().describe('La definición de la palabra, en español.'),
+      synonyms: z.array(z.string()).describe('Sinónimos de la palabra.'),
+      usageTips: z.string().describe('Consejos de uso comunes para la palabra o frase, en español.'),
     })
-  ).describe('Detailed analysis of each word in the sentence.'),
+  ).describe('Análisis detallado de cada palabra en la oración, con explicaciones en español.'),
 });
 
 export type AnalyzeSentenceOutput = z.infer<typeof AnalyzeSentenceOutputSchema>;
@@ -40,25 +41,25 @@ export type AnalyzeSentenceOutput = z.infer<typeof AnalyzeSentenceOutputSchema>;
 // Define the tool to fetch word details
 const getWordDetails = ai.defineTool({
   name: 'getWordDetails',
-  description: 'Retrieves the definition, synonyms, and usage tips for a given word.',
+  description: 'Retrieves the definition, synonyms, and usage tips for a given word. Definitions and usage tips should be in Spanish.',
   inputSchema: z.object({
     word: z.string().describe('The word to look up.'),
   }),
   outputSchema: z.object({
-    definition: z.string().describe('The definition of the word.'),
-    synonyms: z.array(z.string()).describe('Synonyms for the word.'),
-    usageTips: z.string().describe('Common usage tips for the word.'),
+    definition: z.string().describe('La definición de la palabra, en español.'),
+    synonyms: z.array(z.string()).describe('Sinónimos de la palabra.'), // Synonyms remain in English as they are word lists
+    usageTips: z.string().describe('Consejos de uso comunes para la palabra, en español.'),
   }),
 },
 async (input) => {
   // Replace this with an actual API call to a dictionary service
   // (e.g., Oxford, Merriam-Webster)
-  // For now, return dummy data
+  // For now, return dummy data, ensuring Spanish content for relevant fields
   await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API latency
   return {
-    definition: `Definition of ${input.word} (dummy data)`,    
-    synonyms: [`synonym1 for ${input.word}`, `synonym2 for ${input.word}`],
-    usageTips: `Usage tips for ${input.word} (dummy data)`,
+    definition: `Definición de ${input.word} (datos de ejemplo)`,
+    synonyms: [`synonym1 for ${input.word}`, `synonym2 for ${input.word}`], // Synonyms are typically language-specific to the original word
+    usageTips: `Consejos de uso para ${input.word} (datos de ejemplo)`,
   };
 });
 
@@ -68,13 +69,16 @@ const analyzeSentencePrompt = ai.definePrompt({
   input: {schema: AnalyzeSentenceInputSchema},
   output: {schema: AnalyzeSentenceOutputSchema},
   tools: [getWordDetails],
-  prompt: `You are a linguistic expert. Analyze the following English sentence and provide a detailed breakdown.
+  prompt: `Eres un experto lingüista. Analiza la siguiente oración en inglés y proporciona un desglose detallado.
+Todas las explicaciones, incluyendo el tiempo verbal, el desglose gramatical, las definiciones y los consejos de uso, DEBEN ESTAR EN ESPAÑOL.
+Los sinónimos deben permanecer en inglés, ya que son listas de palabras asociadas a la palabra original en inglés.
 
-Sentence: {{{sentence}}}
+Oración: {{{sentence}}}
 
-Identify the sentence tense, grammar breakdown, and provide an analysis of each word, including its role, definition, synonyms, and usage tips. Use the getWordDetails tool to get more information about individual words when needed.
+Identifica el tiempo verbal de la oración, el desglose gramatical y proporciona un análisis de cada palabra, incluyendo su categoría gramatical (rol), definición (en español), sinónimos (en inglés) y consejos de uso (en español).
+Utiliza la herramienta getWordDetails para obtener más información sobre palabras individuales cuando sea necesario. La herramienta también debe devolver la definición y los consejos de uso en español.
 
-Format your response as a JSON object matching the schema.
+Formatea tu respuesta como un objeto JSON que coincida con el esquema proporcionado.
 `,
 });
 
@@ -95,3 +99,4 @@ const analyzeSentenceFlow = ai.defineFlow(
 export async function analyzeSentence(input: AnalyzeSentenceInput): Promise<AnalyzeSentenceOutput> {
   return analyzeSentenceFlow(input);
 }
+
