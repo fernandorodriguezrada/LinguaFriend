@@ -1,6 +1,7 @@
+
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef, type ChangeEvent, type KeyboardEvent } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useActionState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
@@ -34,7 +35,8 @@ function SubmitButton() {
 export function SentenceInputForm({ onAnalysisResult, initialState, serverAction }: SentenceInputFormProps) {
   const [state, formAction] = useActionState(serverAction, initialState);
   const { toast } = useToast();
-  const formRef = React.useRef<HTMLFormElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [inputValue, setInputValue] = useState('');
 
   useEffect(() => {
     if (state) {
@@ -51,10 +53,31 @@ export function SentenceInputForm({ onAnalysisResult, initialState, serverAction
           description: "La oración ha sido analizada exitosamente.",
         });
         formRef.current?.reset(); 
+        setInputValue(''); // Clear the controlled input state
       }
     }
   }, [state, onAnalysisResult, toast]);
 
+  const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    let value = e.target.value;
+    if (value.length > 0) {
+      // Capitalize the first letter, leave the rest as is
+      value = value.charAt(0).toUpperCase() + value.slice(1);
+    }
+    setInputValue(value);
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault(); // Prevent adding a new line
+      if (formRef.current && inputValue.trim() !== '') { // Only submit if not empty
+        formRef.current.requestSubmit();
+      } else if (inputValue.trim() === '') {
+        // Optionally, show a toast or message if trying to submit an empty sentence with Enter
+        // For now, we rely on the `required` attribute and server-side validation.
+      }
+    }
+  };
 
   return (
     <form ref={formRef} action={formAction} className="space-y-6">
@@ -64,12 +87,20 @@ export function SentenceInputForm({ onAnalysisResult, initialState, serverAction
         </Label>
         <Textarea
           id="sentence"
-          name="sentence"
+          name="sentence" // Crucial for FormData to pick up the value
           placeholder="Ej: She has been studying for hours."
           className="mt-2 min-h-[100px] text-base"
+          value={inputValue}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
           required
         />
-        {state?.error && <p className="mt-2 text-sm text-destructive">{state.error.includes("La oración no puede estar vacía") ? state.error : ""}</p>}
+        {state?.error && !state.error.includes("La oración no puede estar vacía") && <p className="mt-2 text-sm text-destructive">{state.error}</p>}
+        {/* The specific "cannot be empty" error is handled by the required attribute for direct display if possible,
+            or by the server action's Zod validation. Here we show other errors.
+            If input is empty and submission is attempted, HTML5 validation should prevent it due to 'required'.
+            If JS is disabled or bypasses it, server action handles it.
+        */}
       </div>
       <div className="flex justify-end">
         <SubmitButton />
