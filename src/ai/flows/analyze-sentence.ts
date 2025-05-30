@@ -23,7 +23,7 @@ export type AnalyzeSentenceInput = z.infer<typeof AnalyzeSentenceInputSchema>;
 
 // Define the output schema
 const AnalyzeSentenceOutputSchema = z.object({
-  tense: z.string().describe('El tiempo verbal de la oración (ej. Presente Perfecto), incluyendo el término en inglés entre paréntesis, su fórmula, explicación de uso y un ejemplo con la oración original. Esta explicación debe estar bien estructurada en párrafos para facilitar la lectura.'),
+  tense: z.string().describe('El tiempo verbal de la oración (ej. Presente Perfecto), incluyendo el término en inglés entre paréntesis, su fórmula, explicación de uso y un ejemplo con la oración original. Esta explicación debe estar bien estructurada en párrafos para facilitar la lectura, y ser texto plano.'),
   grammarBreakdown: z.string().describe('La estructura gramatical de la oración, explicada en español, incluyendo términos clave en inglés entre paréntesis. Debe ser texto plano.'),
   wordAnalysis: z.array(
     z.object({
@@ -76,12 +76,12 @@ Los sinónimos deben permanecer en inglés, ya que son listas de palabras asocia
 
 Oración: {{{sentence}}}
 
-Para el campo "tense", sigue las directrices generales de formato y proporciona una explicación bien estructurada y fácil de leer, dividida en los siguientes párrafos:
-1.  **Identificación del Tiempo Verbal:** En un párrafo, identifica el tiempo verbal de la oración. Proporciona el nombre del tiempo verbal en español, seguido del término en inglés entre paréntesis (ej. Presente Perfecto (Present Perfect)).
-2.  **Fórmula/Estructura:** En un párrafo aparte, describe la estructura o fórmula gramatical de este tiempo verbal (ej. Sujeto + 'have/has' + participio pasado (Subject + 'have/has' + past participle)).
-3.  **Uso Principal:** En otro párrafo, explica brevemente el uso principal de este tiempo verbal en español.
-4.  **Ejemplo Práctico en la Oración:** Finalmente, en un párrafo separado, vuelve a escribir la oración original "{{{sentence}}}" como un ejemplo práctico y visual. En este ejemplo, detalla cómo se aplica la fórmula y el uso del tiempo verbal identificado directamente en la oración original. Por ejemplo, si la oración es "She has eaten an apple" y el tiempo es Presente Perfecto, podrías decir: "Ejemplo en la oración '{{{sentence}}}': 'She (Sujeto) has (auxiliar 'have/has') eaten (participio pasado de 'eat') an apple'. Esto muestra una acción completada recientemente relacionada con el presente."
-Asegúrate de que cada parte sea clara y que el conjunto sea fácil de leer, evitando bloques de texto densos.
+Para el campo "tense", sigue las directrices generales de formato y proporciona una explicación bien estructurada y fácil de leer, distribuida en los siguientes puntos, cada uno en un párrafo separado:
+1.  **Identificación y Uso Inicial:** Identifica el tiempo verbal de la oración, proporcionando su nombre en español seguido del término en inglés entre paréntesis (ej. Presente Perfecto (Present Perfect)). En este mismo párrafo, menciona cómo se utiliza este tiempo verbal en la oración "{{{sentence}}}" y da una breve explicación de su significado o función principal en este contexto.
+2.  **Fórmula:** En un párrafo aparte, comenzando con el texto "Fórmula:" (sin negrita), describe la estructura o fórmula gramatical de este tiempo verbal (ej. Sujeto + 'have/has' + participio pasado (Subject + 'have/has' + past participle)).
+3.  **Uso Principal:** En otro párrafo aparte, comenzando con el texto "Uso Principal:" (sin negrita), explica los usos generales más comunes de este tiempo verbal en español.
+4.  **Ejemplo Práctico en la Oración:** Finalmente, en un párrafo separado, comenzando con el texto "Ejemplo Práctico en la Oración:" (sin negrita), vuelve a escribir la oración original "{{{sentence}}}" como un ejemplo práctico. Detalla cómo se aplica la fórmula y el uso del tiempo verbal identificado directamente en la oración original. Por ejemplo, si la oración es "She has eaten an apple" y el tiempo es Presente Perfecto, la explicación podría ser: "Ejemplo Práctico en la Oración: En la oración '{{{sentence}}}': 'She (Sujeto) has (auxiliar 'have/has') eaten (participio pasado de 'eat') an apple'. Esto muestra una acción completada recientemente relacionada con el presente."
+Asegúrate de que cada párrafo sea claro, conciso y que el conjunto sea fácil de leer, evitando bloques de texto densos. TODO EL TEXTO GENERADO PARA EL CAMPO "tense" DEBE SER TEXTO PLANO, sin usar Markdown ni caracteres especiales (como asteriscos) para aplicar formato (negrita, cursiva, etc.). Los saltos de línea entre los puntos mencionados crearán la separación de párrafos.
 
 Para el campo "grammarBreakdown":
 Proporciona un desglose gramatical general de la oración, siguiendo las pautas de idioma, inclusión de términos en inglés entre paréntesis y formato de texto plano. Si es largo, considera usar párrafos.
