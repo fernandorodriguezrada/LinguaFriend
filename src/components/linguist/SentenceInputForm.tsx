@@ -102,7 +102,7 @@ export function SentenceInputForm({ onAnalysisResult, initialState, serverAction
           id="sentence"
           name="sentence"
           placeholder="Ej: She has been studying for hours."
-          className="mt-2 min-h-[100px] text-base"
+          className="mt-2 min-h-[100px] text-base resize-none"
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
