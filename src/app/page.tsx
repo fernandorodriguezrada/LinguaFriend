@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useTransition, useCallback } from 'react';
+import React, { useState, useTransition, useCallback, useRef, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { SentenceInputForm } from '@/components/linguist/SentenceInputForm';
 import { AnalysisDisplay } from '@/components/linguist/AnalysisDisplay';
@@ -36,6 +36,7 @@ export default function LinguaFriendPage() {
   const [featureToggles, setFeatureToggles] = useState<FeatureToggleState>(initialFeatureToggles);
 
   const [isPending, startTransition] = useTransition();
+  const resultsContainerRef = useRef<HTMLDivElement>(null);
 
   const handleAnalysisFormSubmit = useCallback((result: ActionState) => {
     startTransition(() => {
@@ -51,6 +52,12 @@ export default function LinguaFriendPage() {
       }
     });
   }, [startTransition]);
+
+  useEffect(() => {
+    if (resultsContainerRef.current && !isPending && !error && (analysisResult || improvementResult?.hasImprovements)) {
+      resultsContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [analysisResult, improvementResult, error, isPending]);
 
 
   return (
@@ -90,37 +97,39 @@ export default function LinguaFriendPage() {
               </Card>
             )}
             
-            {!isPending && !error && (analysisResult || improvementResult?.hasImprovements) && (
-              <>
-                <TranslationDisplay originalSentence={currentSentence} />
-                {improvementResult && improvementResult.hasImprovements && (
-                  <CommonMistakesDisplay improvement={improvementResult} />
+            {!isPending && !error && (
+              <div ref={resultsContainerRef}>
+                {(analysisResult || improvementResult?.hasImprovements) ? (
+                  <div className="space-y-8">
+                    <TranslationDisplay originalSentence={currentSentence} />
+                    {improvementResult && improvementResult.hasImprovements && (
+                      <CommonMistakesDisplay improvement={improvementResult} />
+                    )}
+                    {analysisResult && (
+                      <AnalysisDisplay 
+                        analysis={analysisResult} 
+                        featureToggles={featureToggles} 
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <Card className="shadow-md">
+                      <CardContent className="p-10 text-center">
+                          <h2 className="text-2xl font-headline text-foreground/80">Bienvenido a LinguaFriend</h2>
+                          <p className="mt-2 text-muted-foreground">
+                              Escribe una oración en inglés en el panel de la izquierda y presiona "Analizar Oración" para comenzar.
+                          </p>
+                           <img 
+                             src="https://placehold.co/600x400.png" 
+                             alt="Image illustrating confusing English words or grammar concepts" 
+                             data-ai-hint="english learning grammar" 
+                             className="mt-6 rounded-[10px] mx-auto shadow-lg border-2 border-primary/90"
+                             style={{borderColor: 'hsl(210deg 100% 75% / 90%)'}}
+                           />
+                      </CardContent>
+                  </Card>
                 )}
-                {analysisResult && (
-                  <AnalysisDisplay 
-                    analysis={analysisResult} 
-                    featureToggles={featureToggles} 
-                  />
-                )}
-              </>
-            )}
-
-            {!isPending && !error && !analysisResult && (!improvementResult || !improvementResult.hasImprovements) && (
-                <Card className="shadow-md">
-                    <CardContent className="p-10 text-center">
-                        <h2 className="text-2xl font-headline text-foreground/80">Bienvenido a LinguaFriend</h2>
-                        <p className="mt-2 text-muted-foreground">
-                            Escribe una oración en inglés en el panel de la izquierda y presiona "Analizar Oración" para comenzar.
-                        </p>
-                         <img 
-                           src="https://placehold.co/600x400.png" 
-                           alt="Image illustrating confusing English words or grammar concepts" 
-                           data-ai-hint="english learning grammar" 
-                           className="mt-6 rounded-[10px] mx-auto shadow-lg border-2 border-primary/90"
-                           style={{borderColor: 'hsl(210deg 100% 75% / 90%)'}}
-                         />
-                    </CardContent>
-                </Card>
+              </div>
             )}
           </div>
         </div>
