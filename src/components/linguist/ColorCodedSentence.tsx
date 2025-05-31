@@ -20,7 +20,7 @@ export const grammarColorMapping = [
   { label: 'Determinante', identifier: 'determiner', className: 'text-pastel-teal', bgColorClass: 'bg-pastel-teal' },
   { label: 'Interjección', identifier: 'interjection', className: 'text-pastel-lime', bgColorClass: 'bg-pastel-lime' },
   { label: 'Contracción', identifier: 'contraction', className: 'text-pastel-rose', bgColorClass: 'bg-pastel-rose' },
-  { label: 'Puntuación', identifier: 'punctuation', className: 'text-muted-foreground', bgColorClass: 'bg-border' },
+  { label: 'Puntuación', identifier: 'punctuation', className: 'text-muted-foreground', bgColorClass: 'bg-muted-foreground' }, // Changed bgColorClass
   { label: 'Otro', identifier: 'other', className: 'text-foreground', bgColorClass: 'bg-muted' },
 ];
 
@@ -109,4 +109,3 @@ export function GrammarLegend() {
     </div>
   );
 }
-
