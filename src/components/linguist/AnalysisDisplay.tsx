@@ -33,10 +33,10 @@ export function AnalysisDisplay({ analysis, featureToggles }: AnalysisDisplayPro
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {sentenceParts && sentenceParts.length > 0 && (
+          {sentenceParts && sentenceParts.length > 0 && wordAnalysis && (
             <div>
               <h3 className="text-lg font-semibold font-headline text-foreground/90 mb-1">Oración Analizada:</h3>
-              <ColorCodedSentence sentenceParts={sentenceParts} />
+              <ColorCodedSentence sentenceParts={sentenceParts} wordAnalysis={wordAnalysis} />
               <GrammarLegend />
             </div>
           )}

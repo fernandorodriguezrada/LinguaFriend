@@ -1,11 +1,12 @@
 
 'use client';
 
-import type { SentencePart } from '@/lib/types';
+import type { SentencePart, ExtendedAnalyzeSentenceOutput } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface ColorCodedSentenceProps {
   sentenceParts: SentencePart[];
+  wordAnalysis: ExtendedAnalyzeSentenceOutput['wordAnalysis'];
 }
 
 export const grammarColorMapping = [
@@ -23,13 +24,50 @@ export const grammarColorMapping = [
   { label: 'Otro', identifier: 'other', className: 'text-foreground', bgColorClass: 'bg-muted' },
 ];
 
-const getRoleColorClass = (role: string): string => {
-  const normalizedRole = role.toLowerCase();
-  const mapping = grammarColorMapping.find(m => normalizedRole.includes(m.identifier));
+// Helper function to map detailed role from wordAnalysis to simplified role for coloring
+const mapDetailedRoleToSimplifiedRole = (detailedRole: string): string => {
+  const roleLower = detailedRole.toLowerCase();
+  // Order might matter if there's overlap; check more specific or common terms.
+  // Prioritizing English terms if present in parentheses.
+  if (/\(adverb/.test(roleLower) || roleLower.startsWith('adverbio')) return 'adverb';
+  if (/\(verb/.test(roleLower) || roleLower.startsWith('verbo')) return 'verb';
+  if (/\(noun/.test(roleLower) || roleLower.startsWith('sustantivo')) return 'noun';
+  if (/\(adjective/.test(roleLower) || roleLower.startsWith('adjetivo')) return 'adjective';
+  if (/\(pronoun/.test(roleLower) || roleLower.startsWith('pronombre')) return 'pronoun';
+  if (/\(preposition/.test(roleLower) || roleLower.startsWith('preposici')) return 'preposition';
+  if (/\(conjunction/.test(roleLower) || roleLower.startsWith('conjunci')) return 'conjunction';
+  if (/\(determiner/.test(roleLower) || roleLower.startsWith('determinante')) return 'determiner';
+  if (/\(interjection/.test(roleLower) || roleLower.startsWith('interjecci')) return 'interjection';
+  
+  return 'other'; // Fallback
+};
+
+const getRoleColorClass = (
+  part: SentencePart,
+  wordAnalysis: ExtendedAnalyzeSentenceOutput['wordAnalysis']
+): string => {
+  let roleForColoring = part.role.toLowerCase(); // Default to role from sentenceParts
+
+  // For words (not punctuation or contractions already identified by sentenceParts),
+  // try to get a more accurate role from wordAnalysis.
+  if (roleForColoring !== 'punctuation' && roleForColoring !== 'contraction') {
+    const analyzedWordEntry = wordAnalysis.find(
+      (wa) => wa.word.toLowerCase() === part.text.toLowerCase()
+    );
+
+    if (analyzedWordEntry && analyzedWordEntry.role) {
+      const mappedRole = mapDetailedRoleToSimplifiedRole(analyzedWordEntry.role);
+      if (mappedRole !== 'other') { 
+        roleForColoring = mappedRole;
+      }
+    }
+  }
+  
+  const mapping = grammarColorMapping.find(m => roleForColoring === m.identifier);
   return mapping ? `${mapping.className} font-medium` : 'text-foreground font-medium';
 };
 
-export function ColorCodedSentence({ sentenceParts }: ColorCodedSentenceProps) {
+export function ColorCodedSentence({ sentenceParts, wordAnalysis }: ColorCodedSentenceProps) {
   if (!sentenceParts || sentenceParts.length === 0) {
     return null;
   }
@@ -37,7 +75,7 @@ export function ColorCodedSentence({ sentenceParts }: ColorCodedSentenceProps) {
   return (
     <p className="text-lg leading-relaxed bg-muted/30 p-3 rounded-md shadow-inner">
       {sentenceParts.map((part, index) => (
-        <span key={index} className={cn(getRoleColorClass(part.role), 'transition-colors duration-300 ease-in-out')}>
+        <span key={index} className={cn(getRoleColorClass(part, wordAnalysis), 'transition-colors duration-300 ease-in-out')}>
           {part.text}
           {index < sentenceParts.length - 1 && 
            !sentenceParts[index+1].role.toLowerCase().includes('punctuation') &&
@@ -71,4 +109,3 @@ export function GrammarLegend() {
     </div>
   );
 }
-
