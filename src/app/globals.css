@@ -52,21 +52,21 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* Pastel colors for grammar highlighting - Light Mode (Darker for better contrast) */
-    --pastel-pink: 350 100% 70%;   /* Verb - Darker for light mode */
-    --pastel-green: 145 55% 55%;  /* Noun - More distinct green, adjusted hue, slightly darker */
-    --pastel-yellow: 45 100% 60%;  /* Adjective - Darker yellow */
-    --pastel-purple: 260 100% 75%; /* Adverb - Darker for light mode */
-    --pastel-blue: 200 100% 72%;   /* Pronoun - Darker for light mode */
-    --pastel-orange: 30 100% 70%;  /* Preposition - Darker for light mode */
-    --pastel-gray: 210 15% 55%;   /* Conjunction - Darker for light mode */
-    --pastel-teal: 170 50% 50%;   /* Determiner - Changed hue significantly, adjusted lightness */
-    --pastel-lime: 90 60% 65%;    /* Interjection - Darker for light mode */
-    --pastel-rose: 330 70% 70%;   /* Contraction - New color */
+    --pastel-pink: 350 100% 65%;   /* Verb - Darker for light mode */
+    --pastel-green: 145 55% 50%;  /* Noun - More distinct green, darker */
+    --pastel-yellow: 45 100% 55%;  /* Adjective - Darker yellow */
+    --pastel-purple: 260 100% 70%; /* Adverb - Darker for light mode */
+    --pastel-blue: 200 100% 68%;   /* Pronoun - Darker for light mode */
+    --pastel-orange: 30 100% 65%;  /* Preposition - Darker for light mode */
+    --pastel-gray: 210 15% 50%;   /* Conjunction - Darker for light mode */
+    --pastel-teal: 219 44% 66%;   /* Determiner - New color #809bce */
+    --pastel-lime: 90 60% 60%;    /* Interjection - Darker for light mode */
+    --pastel-rose: 330 70% 65%;   /* Contraction - Darker for light mode */
   }
 
   .dark {
     --background: 210 20% 10%; /* Very dark blue */
-    --foreground: 213 100% 97%; /* Light blue - slightly more luminous for punctuation visibility */
+    --foreground: 213 100% 98%; /* Light blue - slightly more luminous for punctuation visibility */
 
     --muted: 210 15% 14.9%;
     --muted-foreground: 210 10% 63.9%;
@@ -116,8 +116,8 @@
     --pastel-purple: 260 70% 65%; /* Adverb */
     --pastel-blue: 200 70% 62%; /* Pronoun */
     --pastel-orange: 30 70% 60%; /* Preposition */
-    --pastel-gray: 210 25% 82%;  /* Conjunction - Made significantly lighter */
-    --pastel-teal: 170 50% 60%;   /* Determiner - Changed hue significantly */
+    --pastel-gray: 210 25% 85%;  /* Conjunction - Made significantly lighter */
+    --pastel-teal: 219 44% 62%;   /* Determiner - New color for dark mode */
     --pastel-lime: 90 50% 55%; /* Interjection */
     --pastel-rose: 330 60% 78%; /* Contraction - New color */
   }
@@ -156,4 +156,3 @@
 .bg-pastel-teal { background-color: hsl(var(--pastel-teal)); }
 .bg-pastel-lime { background-color: hsl(var(--pastel-lime)); }
 .bg-pastel-rose { background-color: hsl(var(--pastel-rose)); }
-
