@@ -72,9 +72,11 @@ const improveSentenceFlow = ai.defineFlow(
   async input => {
     const response = await improveSentencePrompt(input);
 
-    if (response.error) {
-      console.error('Genkit prompt (improveSentencePrompt) encountered an error:', response.error, { input, usage: response.usage, history: response.history });
-      throw new Error(`AI model processing error for improvement: ${response.error}`);
+    const errorFromAI = response.error as unknown; // Cast to unknown first
+    if (errorFromAI) {
+      const errorMessage = errorFromAI instanceof Error ? errorFromAI.message : String(errorFromAI);
+      console.error('Genkit prompt (improveSentencePrompt) encountered an error:', errorMessage, { input, usage: response.usage, history: response.history });
+      throw new Error(`AI model processing error for improvement: ${errorMessage}`);
     }
 
     if (!response.output) {
