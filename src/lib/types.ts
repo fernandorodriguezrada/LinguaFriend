@@ -1,5 +1,5 @@
 
-import type { AnalyzeSentenceOutput as OriginalAnalyzeSentenceOutput, ImproveSentenceOutput } from '@/ai/flows/analyze-sentence'; // Assuming ImproveSentenceOutput is also from here or its own file
+import type { AnalyzeSentenceOutput as OriginalAnalyzeSentenceOutput } from '@/ai/flows/analyze-sentence';
 
 export interface SentencePart {
   text: string;
@@ -20,7 +20,11 @@ export interface FeatureToggleState {
 }
 
 export type AnalysisResult = ExtendedAnalyzeSentenceOutput | null;
-export type ImprovementResult = ImproveSentenceOutput | null;
+// ImprovementResult will use the ImproveSentenceOutput re-exported below
+// export type ImprovementResult = ImproveSentenceOutput | null; 
 
 // Re-exporting ImproveSentence types if they are not already globally available
 export type { ImproveSentenceInput, ImproveSentenceOutput } from '@/ai/flows/improve-sentence';
+
+// Now define ImprovementResult using the correctly available type
+export type ImprovementResult = import('@/ai/flows/improve-sentence').ImproveSentenceOutput | null;
