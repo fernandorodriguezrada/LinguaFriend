@@ -3,17 +3,18 @@
 
 import { analyzeSentence, type AnalyzeSentenceInput } from '@/ai/flows/analyze-sentence';
 import { improveSentence, type ImproveSentenceInput, type ImproveSentenceOutput } from '@/ai/flows/improve-sentence';
-import type { ExtendedAnalyzeSentenceOutput } from '@/lib/types';
+import type { ExtendedAnalyzeSentenceOutput, ImprovementResult } from '@/lib/types';
 import { z } from 'zod';
 
 const AnalyzeSentenceActionSchema = z.object({
   sentence: z.string().min(1, "La oración no puede estar vacía."),
   eli5Mode: z.preprocess(value => value === 'on' || value === true, z.boolean()).default(false),
+  showImprovementSuggestions: z.preprocess(value => value === 'on' || value === true, z.boolean()).default(true),
 });
 
 export interface ActionState {
   data: ExtendedAnalyzeSentenceOutput | null;
-  improvementData: ImproveSentenceOutput | null;
+  improvementData: ImprovementResult | null; // Can be ImproveSentenceOutput or null
   error: string | null;
   message?: string;
   originalSentence?: string;
@@ -25,7 +26,8 @@ export async function handleAnalyzeSentence(
 ): Promise<ActionState> {
   const rawFormData = {
     sentence: formData.get('sentence') as string,
-    eli5Mode: formData.get('eli5Mode') // This will be 'on' or null from checkbox, or boolean if set directly
+    eli5Mode: formData.get('eli5Mode'),
+    showImprovementSuggestions: formData.get('showImprovementSuggestions')
   };
 
   const validationResult = AnalyzeSentenceActionSchema.safeParse(rawFormData);
@@ -39,21 +41,25 @@ export async function handleAnalyzeSentence(
     };
   }
 
-  const { sentence, eli5Mode } = validationResult.data;
+  const { sentence, eli5Mode, showImprovementSuggestions } = validationResult.data;
   const analysisInput: AnalyzeSentenceInput = { sentence, eli5Mode };
-  const improvementInput: ImproveSentenceInput = { sentence };
-
+  
   try {
-    // Perform analysis and improvement in parallel
-    const [analysisResult, improvementResult] = await Promise.all([
+    let improvementPromise: Promise<ImprovementResult | null> = Promise.resolve(null);
+    if (showImprovementSuggestions) {
+      const improvementInput: ImproveSentenceInput = { sentence };
+      improvementPromise = improveSentence(improvementInput);
+    }
+
+    const [analysisResult, improvementResultValue] = await Promise.all([
       analyzeSentence(analysisInput),
-      improveSentence(improvementInput)
+      improvementPromise
     ]);
 
     if (!analysisResult && sentence) { 
       return { 
         data: null, 
-        improvementData: improvementResult || null,
+        improvementData: improvementResultValue || null,
         error: 'Respuesta inesperada del servidor al analizar. Inténtalo de nuevo.', 
         originalSentence: sentence 
       };
@@ -61,7 +67,7 @@ export async function handleAnalyzeSentence(
     
     return { 
       data: analysisResult, 
-      improvementData: improvementResult || null,
+      improvementData: improvementResultValue || null,
       error: null, 
       originalSentence: sentence 
     };

@@ -25,6 +25,7 @@ const initialFeatureToggles: FeatureToggleState = {
   showUsageTips: true,
   focusOnVerbs: false,
   eli5Mode: false,
+  showImprovementSuggestions: true, // Default to true to maintain current behavior
 };
 
 export default function LinguaFriendPage() {

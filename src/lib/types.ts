@@ -16,6 +16,7 @@ export interface FeatureToggleState {
   showUsageTips: boolean;
   focusOnVerbs: boolean;
   eli5Mode: boolean; // Explain Like I'm 5
+  showImprovementSuggestions: boolean;
 }
 
 export type AnalysisResult = ExtendedAnalyzeSentenceOutput | null;

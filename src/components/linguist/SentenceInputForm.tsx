@@ -77,16 +77,19 @@ export function SentenceInputForm({ onAnalysisResult, initialState, serverAction
         const formData = new FormData(formRef.current);
         // Manually append toggles that are not direct form elements if needed by action
         formData.set('eli5Mode', currentFeatureToggles.eli5Mode ? 'on' : 'off');
+        formData.set('showImprovementSuggestions', currentFeatureToggles.showImprovementSuggestions ? 'on' : 'off');
         formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
       }
     }
   };
   
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    // FormData will pick up "sentence" and "eli5Mode" if it's a checkbox with name
     const formData = new FormData(event.currentTarget);
-    if (!formData.has('eli5Mode')) { // if eli5Mode switch is not a direct form child
+    if (!formData.has('eli5Mode')) { 
         formData.append('eli5Mode', currentFeatureToggles.eli5Mode ? 'on' : 'off');
+    }
+    if (!formData.has('showImprovementSuggestions')) {
+        formData.append('showImprovementSuggestions', currentFeatureToggles.showImprovementSuggestions ? 'on' : 'off');
     }
     // The formAction will be called with this formData by react-dom
   };
@@ -108,8 +111,9 @@ export function SentenceInputForm({ onAnalysisResult, initialState, serverAction
           onKeyDown={handleKeyDown}
           required
         />
-        {/* Hidden input for eli5Mode if not using a named Switch component */}
+        {/* Hidden inputs for toggles not directly part of the form structure */}
         <input type="hidden" name="eli5Mode" value={currentFeatureToggles.eli5Mode ? 'on' : 'off'} />
+        <input type="hidden" name="showImprovementSuggestions" value={currentFeatureToggles.showImprovementSuggestions ? 'on' : 'off'} />
       </div>
       <div className="flex justify-end">
         <SubmitButton />
