@@ -14,7 +14,7 @@ const AnalyzeSentenceActionSchema = z.object({
 
 export interface ActionState {
   data: ExtendedAnalyzeSentenceOutput | null;
-  improvementData: ImprovementResult | null; // Can be ImproveSentenceOutput or null
+  improvementData: ImprovementResult | null;
   error: string | null;
   message?: string;
   originalSentence?: string;
@@ -45,29 +45,27 @@ export async function handleAnalyzeSentence(
   const analysisInput: AnalyzeSentenceInput = { sentence, eli5Mode };
   
   try {
-    let improvementPromise: Promise<ImprovementResult | null> = Promise.resolve(null);
-    if (showImprovementSuggestions) {
-      const improvementInput: ImproveSentenceInput = { sentence };
-      improvementPromise = improveSentence(improvementInput);
-    }
-
-    const [analysisResult, improvementResultValue] = await Promise.all([
-      analyzeSentence(analysisInput),
-      improvementPromise
-    ]);
+    const analysisResult = await analyzeSentence(analysisInput);
 
     if (!analysisResult && sentence) { 
       return { 
         data: null, 
-        improvementData: improvementResultValue || null,
+        improvementData: null,
         error: 'Respuesta inesperada del servidor al analizar. Inténtalo de nuevo.', 
         originalSentence: sentence 
       };
     }
+
+    let improvementResultValue: ImprovementResult | null = null;
+    if (showImprovementSuggestions) {
+      const improvementInput: ImproveSentenceInput = { sentence };
+      // Call improveSentence sequentially if the toggle is on and analysis was successful
+      improvementResultValue = await improveSentence(improvementInput);
+    }
     
     return { 
       data: analysisResult, 
-      improvementData: improvementResultValue || null,
+      improvementData: improvementResultValue,
       error: null, 
       originalSentence: sentence 
     };
