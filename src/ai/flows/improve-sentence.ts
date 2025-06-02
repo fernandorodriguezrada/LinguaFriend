@@ -70,7 +70,18 @@ const improveSentenceFlow = ai.defineFlow(
     outputSchema: ImproveSentenceOutputSchema,
   },
   async input => {
-    const {output} = await improveSentencePrompt(input);
-    return output!;
+    const response = await improveSentencePrompt(input);
+
+    if (response.error) {
+      console.error('Genkit prompt (improveSentencePrompt) encountered an error:', response.error, { input, usage: response.usage, history: response.history });
+      throw new Error(`AI model processing error for improvement: ${response.error}`);
+    }
+
+    if (!response.output) {
+      console.error('Genkit prompt (improveSentencePrompt) returned no output.', { input, usage: response.usage, history: response.history });
+      throw new Error('AI model did not return the expected output structure for improvement or the output was empty/filtered.');
+    }
+    return response.output;
   }
 );
+

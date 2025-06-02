@@ -135,8 +135,18 @@ const analyzeSentenceFlow = ai.defineFlow(
     outputSchema: AnalyzeSentenceOutputSchema,
   },
   async (input) => {
-    const {output} = await analyzeSentencePrompt(input);
-    return output!;
+    const response = await analyzeSentencePrompt(input);
+
+    if (response.error) {
+      console.error('Genkit prompt (analyzeSentencePrompt) encountered an error:', response.error, { input, usage: response.usage, history: response.history });
+      throw new Error(`AI model processing error: ${response.error}`);
+    }
+
+    if (!response.output) {
+      console.error('Genkit prompt (analyzeSentencePrompt) returned no output.', { input, usage: response.usage, history: response.history });
+      throw new Error('AI model did not return the expected output structure or the output was empty/filtered.');
+    }
+    return response.output;
   }
 );
 
@@ -144,3 +154,4 @@ const analyzeSentenceFlow = ai.defineFlow(
 export async function analyzeSentence(input: AnalyzeSentenceInput): Promise<AnalyzeSentenceOutput> {
   return analyzeSentenceFlow(input);
 }
+
