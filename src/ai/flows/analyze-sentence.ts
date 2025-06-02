@@ -137,15 +137,30 @@ const analyzeSentenceFlow = ai.defineFlow(
   async (input) => {
     const response = await analyzeSentencePrompt(input);
 
-    const errorFromAI = response.error as unknown; // Cast to unknown first
+    const errorFromAI = response.error as unknown;
     if (errorFromAI) {
       const errorMessage = errorFromAI instanceof Error ? errorFromAI.message : String(errorFromAI);
-      console.error('Genkit prompt (analyzeSentencePrompt) encountered an error:', errorMessage, { input, usage: response.usage, history: response.history });
+      console.error(
+        `Genkit prompt (${analyzeSentencePrompt.name}) encountered an error:`,
+        errorMessage,
+        {
+          input,
+          usage: response?.usage,
+          history: response?.history,
+        }
+      );
       throw new Error(`AI model processing error: ${errorMessage}`);
     }
 
     if (!response.output) {
-      console.error('Genkit prompt (analyzeSentencePrompt) returned no output.', { input, usage: response.usage, history: response.history });
+      console.error(
+        `Genkit prompt (${analyzeSentencePrompt.name}) returned no output.`,
+        {
+          input,
+          usage: response?.usage,
+          history: response?.history,
+        }
+      );
       throw new Error('AI model did not return the expected output structure or the output was empty/filtered.');
     }
     return response.output;

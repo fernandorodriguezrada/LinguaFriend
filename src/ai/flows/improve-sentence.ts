@@ -72,15 +72,30 @@ const improveSentenceFlow = ai.defineFlow(
   async input => {
     const response = await improveSentencePrompt(input);
 
-    const errorFromAI = response.error as unknown; // Cast to unknown first
+    const errorFromAI = response.error as unknown;
     if (errorFromAI) {
       const errorMessage = errorFromAI instanceof Error ? errorFromAI.message : String(errorFromAI);
-      console.error('Genkit prompt (improveSentencePrompt) encountered an error:', errorMessage, { input, usage: response.usage, history: response.history });
+      console.error(
+        `Genkit prompt (${improveSentencePrompt.name}) encountered an error:`,
+        errorMessage,
+        {
+          input,
+          usage: response?.usage,
+          history: response?.history,
+        }
+      );
       throw new Error(`AI model processing error for improvement: ${errorMessage}`);
     }
 
     if (!response.output) {
-      console.error('Genkit prompt (improveSentencePrompt) returned no output.', { input, usage: response.usage, history: response.history });
+      console.error(
+        `Genkit prompt (${improveSentencePrompt.name}) returned no output.`,
+        {
+          input,
+          usage: response?.usage,
+          history: response?.history,
+        }
+      );
       throw new Error('AI model did not return the expected output structure for improvement or the output was empty/filtered.');
     }
     return response.output;
