@@ -45,23 +45,18 @@ export async function handleAnalyzeSentence(
   const analysisInput: AnalyzeSentenceInput = { sentence, eli5Mode };
   
   try {
+    // analyzeSentence and improveSentence flows will throw an error if their output is invalid
     const analysisResult = await analyzeSentence(analysisInput);
-
-    if (!analysisResult && sentence) { 
-      return { 
-        data: null, 
-        improvementData: null,
-        error: 'Respuesta inesperada del servidor al analizar. Inténtalo de nuevo.', 
-        originalSentence: sentence 
-      };
-    }
 
     let improvementResultValue: ImprovementResult | null = null;
     if (showImprovementSuggestions) {
       const improvementInput: ImproveSentenceInput = { sentence };
-      // Call improveSentence sequentially if the toggle is on and analysis was successful
       improvementResultValue = await improveSentence(improvementInput);
     }
+    
+    // If we reach here, analysisResult should be valid or an error would have been thrown by the flow.
+    // The Genkit flows (analyzeSentence, improveSentence) are expected to throw if !response.output.
+    // Thus, analysisResult should be a valid object if no error was caught by the outer try/catch.
     
     return { 
       data: analysisResult, 
@@ -81,3 +76,4 @@ export async function handleAnalyzeSentence(
     };
   }
 }
+

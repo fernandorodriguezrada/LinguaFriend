@@ -43,9 +43,36 @@ const translateSentenceFlow = ai.defineFlow(
     inputSchema: TranslateSentenceInputSchema,
     outputSchema: TranslateSentenceOutputSchema,
   },
-  async input => {
-    const {output} = await translateSentencePrompt(input);
-    return output!;
+  async (input) => {
+    const response = await translateSentencePrompt(input);
+
+    const errorFromAI = response.error as unknown;
+    if (errorFromAI) {
+      const errorMessage = errorFromAI instanceof Error ? errorFromAI.message : String(errorFromAI);
+      console.error(
+        `Genkit prompt (${translateSentencePrompt.name}) encountered an error:`,
+        errorMessage,
+        {
+          input,
+          usage: response?.usage,
+          history: response?.history,
+        }
+      );
+      throw new Error(`AI model processing error for translation: ${errorMessage}`);
+    }
+
+    if (!response.output) {
+      console.error(
+        `Genkit prompt (${translateSentencePrompt.name}) returned no output.`,
+        {
+          input,
+          usage: response?.usage,
+          history: response?.history,
+        }
+      );
+      throw new Error('AI model did not return the expected output structure for translation or the output was empty/filtered.');
+    }
+    return response.output;
   }
 );
 
@@ -53,3 +80,4 @@ const translateSentenceFlow = ai.defineFlow(
 export async function translateSentence(input: TranslateSentenceInput): Promise<TranslateSentenceOutput> {
   return translateSentenceFlow(input);
 }
+
