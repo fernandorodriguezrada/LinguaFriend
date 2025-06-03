@@ -16,7 +16,16 @@ export function useSentenceGroups() {
       try {
         const storedGroups = localStorage.getItem(GROUPS_STORAGE_KEY);
         if (storedGroups) {
-          setGroups(JSON.parse(storedGroups));
+          const parsedGroups = JSON.parse(storedGroups);
+          // Ensure all groups have historyItems initialized as an array
+          const validatedGroups = parsedGroups.map((group: Partial<SentenceGroup>) => ({
+            ...group,
+            id: group.id || uuidv4(),
+            name: group.name || 'Unnamed Group',
+            historyItems: Array.isArray(group.historyItems) ? group.historyItems : [],
+            createdAt: group.createdAt || Date.now(),
+          }));
+          setGroups(validatedGroups);
         }
       } catch (error) {
         console.error("Error loading sentence groups from localStorage:", error);
@@ -42,7 +51,7 @@ export function useSentenceGroups() {
     const newGroup: SentenceGroup = {
       id: uuidv4(),
       name,
-      historyItems: [], // Changed from words to historyItems
+      historyItems: [], 
       createdAt: Date.now(),
     };
     setGroups(prevGroups => {
@@ -65,11 +74,12 @@ export function useSentenceGroups() {
     setGroups(prevGroups => {
       const updatedGroups = prevGroups.map(group => {
         if (group.id === groupId) {
+          const currentHistoryItems = Array.isArray(group.historyItems) ? group.historyItems : [];
           // Avoid duplicates based on history item ID
           const newItems = itemsToAdd.filter(newItem => 
-            !group.historyItems.some(existingItem => existingItem.id === newItem.id)
+            !currentHistoryItems.some(existingItem => existingItem.id === newItem.id)
           );
-          return { ...group, historyItems: [...group.historyItems, ...newItems] };
+          return { ...group, historyItems: [...currentHistoryItems, ...newItems] };
         }
         return group;
       });
@@ -82,7 +92,8 @@ export function useSentenceGroups() {
     setGroups(prevGroups => {
       const updatedGroups = prevGroups.map(group => {
         if (group.id === groupId) {
-          return { ...group, historyItems: group.historyItems.filter(item => item.id !== historyItemId) };
+          const currentHistoryItems = Array.isArray(group.historyItems) ? group.historyItems : [];
+          return { ...group, historyItems: currentHistoryItems.filter(item => item.id !== historyItemId) };
         }
         return group;
       });
