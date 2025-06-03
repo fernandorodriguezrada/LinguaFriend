@@ -56,64 +56,68 @@ export function SentenceGroupsDisplay({
             </p>
           ) : (
             <Accordion type="multiple" className="w-full space-y-3">
-              {groups.map((group) => (
-                <AccordionItem key={group.id} value={group.id} className="border bg-card/50 rounded-md shadow-sm">
-                  <div className="flex items-center justify-between p-4 rounded-t-md hover:bg-muted/40 transition-colors">
-                    <AccordionTrigger className="flex-1 text-lg font-semibold text-left hover:no-underline p-0 focus-visible:ring-1 focus-visible:ring-ring">
-                      {group.name} ({group.historyItems.length} {group.historyItems.length === 1 ? 'análisis' : 'análisis'})
-                    </AccordionTrigger>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 ml-3 shrink-0 p-1.5 h-auto"
-                      onClick={(e) => { e.stopPropagation(); onDeleteGroup(group.id);}}
-                      aria-label={`Eliminar grupo ${group.name}`}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <AccordionContent className="p-4 border-t">
-                    {group.historyItems.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">Este grupo está vacío.</p>
-                    ) : (
-                      <ul className="space-y-2">
-                        {group.historyItems.map((item) => (
-                          <li key={item.id} className="flex justify-between items-center p-2 rounded-md hover:bg-muted/20">
-                            <div className="flex items-center gap-2 flex-grow overflow-hidden">
-                                <FileText className="h-4 w-4 text-primary/80 shrink-0" />
-                                <p className="text-sm text-foreground truncate" title={item.originalSentence}>
-                                    {item.originalSentence}
-                                </p>
-                            </div>
-                            <div className="flex gap-1 shrink-0 ml-2">
-                                {onViewHistoryItemDetails && (
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        className="h-7 w-7"
-                                        onClick={() => onViewHistoryItemDetails(item)}
-                                        aria-label={`Ver detalles de "${item.originalSentence}"`}
-                                    >
-                                        <Eye className="h-3 w-3" />
-                                    </Button>
-                                )}
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 h-7 w-7"
-                                  onClick={() => onRemoveHistoryItemFromGroup(group.id, item.id)}
-                                  aria-label={`Eliminar "${item.originalSentence}" del grupo`}
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </Button>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
+              {groups.map((group) => {
+                const historyItemsCount = Array.isArray(group.historyItems) ? group.historyItems.length : 0;
+                const historyItemsText = historyItemsCount === 1 ? 'análisis' : 'análisis';
+                return (
+                  <AccordionItem key={group.id} value={group.id} className="border bg-card/50 rounded-md shadow-sm">
+                    <div className="flex items-center justify-between p-4 rounded-t-md hover:bg-muted/40 transition-colors">
+                      <AccordionTrigger className="flex-1 text-lg font-semibold text-left hover:no-underline p-0 focus-visible:ring-1 focus-visible:ring-ring">
+                        {group.name} ({historyItemsCount} {historyItemsText})
+                      </AccordionTrigger>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 ml-3 shrink-0 p-1.5 h-auto"
+                        onClick={(e) => { e.stopPropagation(); onDeleteGroup(group.id);}}
+                        aria-label={`Eliminar grupo ${group.name}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <AccordionContent className="p-4 border-t">
+                      {(historyItemsCount === 0) ? (
+                        <p className="text-sm text-muted-foreground">Este grupo está vacío.</p>
+                      ) : (
+                        <ul className="space-y-2">
+                          {group.historyItems.map((item) => (
+                            <li key={item.id} className="flex justify-between items-center p-2 rounded-md hover:bg-muted/20">
+                              <div className="flex items-center gap-2 flex-grow overflow-hidden">
+                                  <FileText className="h-4 w-4 text-primary/80 shrink-0" />
+                                  <p className="text-sm text-foreground truncate" title={item.originalSentence}>
+                                      {item.originalSentence}
+                                  </p>
+                              </div>
+                              <div className="flex gap-1 shrink-0 ml-2">
+                                  {onViewHistoryItemDetails && (
+                                      <Button
+                                          variant="outline"
+                                          size="icon"
+                                          className="h-7 w-7"
+                                          onClick={() => onViewHistoryItemDetails(item)}
+                                          aria-label={`Ver detalles de "${item.originalSentence}"`}
+                                      >
+                                          <Eye className="h-3 w-3" />
+                                      </Button>
+                                  )}
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 h-7 w-7"
+                                    onClick={() => onRemoveHistoryItemFromGroup(group.id, item.id)}
+                                    aria-label={`Eliminar "${item.originalSentence}" del grupo`}
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
+                );
+              })}
             </Accordion>
           )}
         </CardContent>
