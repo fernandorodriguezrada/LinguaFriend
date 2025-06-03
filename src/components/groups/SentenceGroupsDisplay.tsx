@@ -56,20 +56,27 @@ export function SentenceGroupsDisplay({
             <Accordion type="multiple" className="w-full space-y-3">
               {groups.map((group) => (
                 <AccordionItem key={group.id} value={group.id} className="border bg-card/50 rounded-md shadow-sm">
-                  <AccordionTrigger className="hover:bg-muted/30 p-4 rounded-t-md text-lg font-semibold">
-                    <div className="flex justify-between items-center w-full">
-                      <span>{group.name} ({group.words.length} {group.words.length === 1 ? 'elemento' : 'elementos'})</span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 h-8 w-8"
-                        onClick={(e) => { e.stopPropagation(); onDeleteGroup(group.id); }}
-                        aria-label={`Eliminar grupo ${group.name}`}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </AccordionTrigger>
+                  <div className="flex items-center justify-between p-4 rounded-t-md hover:bg-muted/40 transition-colors">
+                    <AccordionTrigger className="flex-1 text-lg font-semibold text-left hover:no-underline p-0 focus-visible:ring-1 focus-visible:ring-ring">
+                      {/* 
+                        Applied p-0 to remove default AccordionTrigger padding as parent div handles it.
+                        text-left to ensure title aligns left.
+                        hover:no-underline to override default.
+                        flex-1 allows trigger to take available space.
+                        Chevron is still managed by AccordionTrigger.
+                      */}
+                      {group.name} ({group.words.length} {group.words.length === 1 ? 'elemento' : 'elementos'})
+                    </AccordionTrigger>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 ml-3 shrink-0 p-1.5 h-auto"
+                      onClick={() => onDeleteGroup(group.id)}
+                      aria-label={`Eliminar grupo ${group.name}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                   <AccordionContent className="p-4 border-t">
                     {group.words.length === 0 ? (
                       <p className="text-sm text-muted-foreground">Este grupo está vacío.</p>
