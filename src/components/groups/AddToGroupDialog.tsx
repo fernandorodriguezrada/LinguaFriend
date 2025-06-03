@@ -7,14 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from "@/components/ui/select";
-import type { SentenceGroup } from '@/lib/types';
+import type { SentenceGroup, AnalysisHistoryItem } from '@/lib/types'; // AnalysisHistoryItem not directly used here but for context of what's being added
 
 interface AddToGroupDialogProps {
   isOpen: boolean;
   onClose: () => void;
   groups: SentenceGroup[];
-  onCreateGroup: (name: string) => Promise<void>; // Modified to fit createGroup hook
-  onSelectGroup: (groupId: string) => void;
+  onCreateGroup: (name: string) => Promise<void>; // Parent will handle adding items after group creation
+  onSelectGroup: (groupId: string) => void; // Parent will handle adding items to selected group
   itemCount: number;
 }
 
@@ -22,35 +22,34 @@ export function AddToGroupDialog({
   isOpen,
   onClose,
   groups,
-  onCreateGroup,
-  onSelectGroup,
+  onCreateGroup, // This will now just create the group. Parent handles adding items.
+  onSelectGroup,  // This will now pass groupId. Parent handles adding items.
   itemCount,
 }: AddToGroupDialogProps) {
   const [selectedGroupId, setSelectedGroupId] = useState<string>('');
   const [newGroupName, setNewGroupName] = useState('');
   const [showNewGroupInput, setShowNewGroupInput] = useState(false);
 
-  const handleCreateNewGroup = async () => {
+  const handleCreateNewGroupAndProceed = async () => {
     if (newGroupName.trim()) {
-      await onCreateGroup(newGroupName.trim()); // This will update groups via the hook
-      // The new group might not be immediately available in `groups` prop here
-      // A better UX might be to select it automatically or refresh `groups`
-      // For now, user might need to re-open to select it or we select it by name if possible.
-      // Or, the `onCreateGroup` in parent could return the new group ID.
-      // For simplicity:
+      // onCreateGroup should ideally signal parent to create group and then add items to it.
+      // For this dialog, its responsibility is to either call onSelectGroup with an existing ID
+      // or call onCreateGroup which then triggers adding to the *newly created* group in parent.
+      await onCreateGroup(newGroupName.trim()); // Parent will create group AND add items.
+      // The parent component's `onCreateGroup` callback (like `handleCreateAndAdd` in HistoryModal)
+      // is responsible for taking the name, creating the group, and then adding the selected items.
       setNewGroupName('');
       setShowNewGroupInput(false);
-      // onClose(); // Or rely on onSelectGroup to close.
+      onClose(); // Close dialog, parent has handled adding.
     }
   };
 
   const handleSubmit = () => {
     if (selectedGroupId) {
-      onSelectGroup(selectedGroupId);
+      onSelectGroup(selectedGroupId); // Parent will use this groupId to add items.
       onClose();
     } else if (showNewGroupInput && newGroupName.trim()) {
-        // This path is a bit redundant if handleCreateNewGroup is called directly
-        // onCreateGroup should ideally handle the selection or update parent state
+        handleCreateNewGroupAndProceed(); // Use the combined function
     }
   };
   
@@ -60,7 +59,7 @@ export function AddToGroupDialog({
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Añadir {itemCount} Elemento(s) a un Grupo</DialogTitle>
+          <DialogTitle>Añadir {itemCount} Análisis a un Grupo</DialogTitle>
           <DialogDescription>
             Selecciona un grupo existente o crea uno nuevo.
           </DialogDescription>
@@ -100,10 +99,10 @@ export function AddToGroupDialog({
                   id="new-group-name"
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
-                  placeholder="Ej: Vocabulario Clave"
+                  placeholder="Ej: Análisis Importantes"
                   autoFocus
                 />
-                <Button onClick={handleCreateNewGroup} disabled={!newGroupName.trim()}>Crear</Button>
+                {/* Button to trigger creation moved to DialogFooter for unified action */}
               </div>
               <Button variant="link" onClick={() => { setShowNewGroupInput(false); setNewGroupName('');}} className="p-0 h-auto text-sm">
                 Cancelar creación
@@ -120,7 +119,7 @@ export function AddToGroupDialog({
             onClick={handleSubmit} 
             disabled={!selectedGroupId && (!showNewGroupInput || !newGroupName.trim())}
           >
-            Añadir a Grupo
+            {showNewGroupInput ? 'Crear y Añadir' : 'Añadir a Grupo'}
           </Button>
         </DialogFooter>
       </DialogContent>

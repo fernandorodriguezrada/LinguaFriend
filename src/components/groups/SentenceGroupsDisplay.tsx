@@ -2,26 +2,28 @@
 'use client';
 
 import React, { useState } from 'react';
-import type { SentenceGroup, WordAnalysisDetail } from '@/lib/types';
+import type { SentenceGroup, AnalysisHistoryItem } from '@/lib/types'; // Updated import
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from '@/components/ui/badge';
 import { CreateGroupDialog } from './CreateGroupDialog';
-import { FolderKanban, PlusCircle, Trash2, FileText } from 'lucide-react';
+import { FolderKanban, PlusCircle, Trash2, FileText, Eye } from 'lucide-react'; // Added Eye
 
 interface SentenceGroupsDisplayProps {
   groups: SentenceGroup[];
   onCreateGroup: (name: string) => Promise<SentenceGroup | null>;
   onDeleteGroup: (groupId: string) => void;
-  onRemoveWordFromGroup: (groupId: string, wordIdentifier: string) => void; // word + role
+  onRemoveHistoryItemFromGroup: (groupId: string, historyItemId: string) => void; // Changed prop name and signature
+  onViewHistoryItemDetails?: (item: AnalysisHistoryItem) => void; // Optional: to view full details
 }
 
 export function SentenceGroupsDisplay({ 
     groups, 
     onCreateGroup, 
     onDeleteGroup, 
-    onRemoveWordFromGroup 
+    onRemoveHistoryItemFromGroup,
+    onViewHistoryItemDetails
 }: SentenceGroupsDisplayProps) {
   const [isCreateGroupDialogOpen, setIsCreateGroupDialogOpen] = useState(false);
 
@@ -37,10 +39,10 @@ export function SentenceGroupsDisplay({
           <div className="space-y-1">
             <CardTitle className="text-2xl font-headline flex items-center gap-2">
               <FolderKanban className="h-6 w-6 text-primary" />
-              Grupos de Palabras/Frases
+              Grupos de Análisis
             </CardTitle>
             <CardDescription>
-              Organiza y revisa palabras o frases guardadas.
+              Organiza y revisa análisis de oraciones guardados.
             </CardDescription>
           </div>
           <Button onClick={() => setIsCreateGroupDialogOpen(true)} size="sm">
@@ -58,49 +60,53 @@ export function SentenceGroupsDisplay({
                 <AccordionItem key={group.id} value={group.id} className="border bg-card/50 rounded-md shadow-sm">
                   <div className="flex items-center justify-between p-4 rounded-t-md hover:bg-muted/40 transition-colors">
                     <AccordionTrigger className="flex-1 text-lg font-semibold text-left hover:no-underline p-0 focus-visible:ring-1 focus-visible:ring-ring">
-                      {/* 
-                        Applied p-0 to remove default AccordionTrigger padding as parent div handles it.
-                        text-left to ensure title aligns left.
-                        hover:no-underline to override default.
-                        flex-1 allows trigger to take available space.
-                        Chevron is still managed by AccordionTrigger.
-                      */}
-                      {group.name} ({group.words.length} {group.words.length === 1 ? 'elemento' : 'elementos'})
+                      {group.name} ({group.historyItems.length} {group.historyItems.length === 1 ? 'análisis' : 'análisis'})
                     </AccordionTrigger>
                     <Button
                       variant="ghost"
                       size="sm"
                       className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 ml-3 shrink-0 p-1.5 h-auto"
-                      onClick={() => onDeleteGroup(group.id)}
+                      onClick={(e) => { e.stopPropagation(); onDeleteGroup(group.id);}}
                       aria-label={`Eliminar grupo ${group.name}`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                   <AccordionContent className="p-4 border-t">
-                    {group.words.length === 0 ? (
+                    {group.historyItems.length === 0 ? (
                       <p className="text-sm text-muted-foreground">Este grupo está vacío.</p>
                     ) : (
                       <ul className="space-y-2">
-                        {group.words.map((word, index) => (
-                          <li key={index} className="flex justify-between items-center p-2 rounded-md hover:bg-muted/20">
-                            <div className="flex items-center gap-2">
+                        {group.historyItems.map((item) => (
+                          <li key={item.id} className="flex justify-between items-center p-2 rounded-md hover:bg-muted/20">
+                            <div className="flex items-center gap-2 flex-grow overflow-hidden">
                                 <FileText className="h-4 w-4 text-primary/80 shrink-0" />
-                                <div>
-                                    <span className="font-medium">{word.word}</span>
-                                    <span className="text-xs text-muted-foreground ml-2">({word.role})</span>
-                                    <p className="text-xs text-muted-foreground truncate max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">{word.definition}</p>
-                                </div>
+                                <p className="text-sm text-foreground truncate" title={item.originalSentence}>
+                                    {item.originalSentence}
+                                </p>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 h-7 w-7"
-                              onClick={() => onRemoveWordFromGroup(group.id, word.word + word.role)}
-                              aria-label={`Eliminar ${word.word} del grupo`}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
+                            <div className="flex gap-1 shrink-0 ml-2">
+                                {onViewHistoryItemDetails && (
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        className="h-7 w-7"
+                                        onClick={() => onViewHistoryItemDetails(item)}
+                                        aria-label={`Ver detalles de "${item.originalSentence}"`}
+                                    >
+                                        <Eye className="h-3 w-3" />
+                                    </Button>
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 h-7 w-7"
+                                  onClick={() => onRemoveHistoryItemFromGroup(group.id, item.id)}
+                                  aria-label={`Eliminar "${item.originalSentence}" del grupo`}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                            </div>
                           </li>
                         ))}
                       </ul>

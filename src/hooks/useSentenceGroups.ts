@@ -2,8 +2,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import type { SentenceGroup, WordAnalysisDetail } from '@/lib/types';
-import { v4 as uuidv4 } from 'uuid'; // Assuming uuid is installed or install it: npm install uuid @types/uuid
+import type { SentenceGroup, AnalysisHistoryItem } from '@/lib/types'; // Updated import
+import { v4 as uuidv4 } from 'uuid';
 
 const GROUPS_STORAGE_KEY = 'linguaFriendSentenceGroups';
 
@@ -42,7 +42,7 @@ export function useSentenceGroups() {
     const newGroup: SentenceGroup = {
       id: uuidv4(),
       name,
-      words: [],
+      historyItems: [], // Changed from words to historyItems
       createdAt: Date.now(),
     };
     setGroups(prevGroups => {
@@ -61,15 +61,15 @@ export function useSentenceGroups() {
     });
   }, [saveGroups]);
 
-  const addWordsToGroup = useCallback((groupId: string, wordsToAdd: WordAnalysisDetail[]) => {
+  const addHistoryItemsToGroup = useCallback((groupId: string, itemsToAdd: AnalysisHistoryItem[]) => {
     setGroups(prevGroups => {
       const updatedGroups = prevGroups.map(group => {
         if (group.id === groupId) {
-          // Avoid duplicates based on word text and role (simple check)
-          const newWords = wordsToAdd.filter(newWord => 
-            !group.words.some(existingWord => existingWord.word === newWord.word && existingWord.role === newWord.role)
+          // Avoid duplicates based on history item ID
+          const newItems = itemsToAdd.filter(newItem => 
+            !group.historyItems.some(existingItem => existingItem.id === newItem.id)
           );
-          return { ...group, words: [...group.words, ...newWords] };
+          return { ...group, historyItems: [...group.historyItems, ...newItems] };
         }
         return group;
       });
@@ -78,11 +78,11 @@ export function useSentenceGroups() {
     });
   }, [saveGroups]);
 
-  const removeWordFromGroup = useCallback((groupId: string, wordIdentifier: string) => { // wordIdentifier could be word.word + word.role
+  const removeHistoryItemFromGroup = useCallback((groupId: string, historyItemId: string) => {
     setGroups(prevGroups => {
       const updatedGroups = prevGroups.map(group => {
         if (group.id === groupId) {
-          return { ...group, words: group.words.filter(w => (w.word + w.role) !== wordIdentifier) };
+          return { ...group, historyItems: group.historyItems.filter(item => item.id !== historyItemId) };
         }
         return group;
       });
@@ -95,5 +95,5 @@ export function useSentenceGroups() {
     return groups.find(g => g.id === groupId);
   }, [groups]);
 
-  return { groups, isLoading, createGroup, deleteGroup, addWordsToGroup, removeWordFromGroup, getGroupById };
+  return { groups, isLoading, createGroup, deleteGroup, addHistoryItemsToGroup, removeHistoryItemFromGroup, getGroupById };
 }

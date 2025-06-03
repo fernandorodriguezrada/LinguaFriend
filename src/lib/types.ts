@@ -7,19 +7,18 @@ export interface SentencePart {
   rawRole?: string; // The detailed role from AI, e.g., "Verbo (Transitivo)"
 }
 
-export interface WordAnalysisDetail { // This is essentially ExtendedAnalyzeSentenceOutput['wordAnalysis'][0]
+export interface WordAnalysisDetail {
   word: string;
   role: string;
   definition: string;
   synonyms: string[];
   usageTips: string;
-  // Add a unique ID for selection purposes if needed, or rely on index/word combo
   id?: string; 
 }
 
 export interface ExtendedAnalyzeSentenceOutput extends OriginalAnalyzeSentenceOutput {
   sentenceParts: SentencePart[];
-  wordAnalysis: WordAnalysisDetail[]; // Ensure WordAnalysisDetail is used here
+  wordAnalysis: WordAnalysisDetail[];
   idiomExplanation?: string;
 }
 
@@ -33,11 +32,9 @@ export interface FeatureToggleState {
 
 export type AnalysisResult = ExtendedAnalyzeSentenceOutput | null;
 
-// Re-exporting ImproveSentence types
 export type { ImproveSentenceInput, ImproveSentenceOutput } from '@/ai/flows/improve-sentence';
 export type ImprovementResult = import('@/ai/flows/improve-sentence').ImproveSentenceOutput | null;
 
-// New types for History and Sentence Groups
 export interface AnalysisHistoryItem {
   id: string; // uuid or timestamp string
   originalSentence: string;
@@ -49,6 +46,7 @@ export interface AnalysisHistoryItem {
 export interface SentenceGroup {
   id: string; // uuid
   name: string;
-  words: WordAnalysisDetail[];
+  historyItems: AnalysisHistoryItem[]; // Changed from words: WordAnalysisDetail[]
   createdAt: number;
 }
+

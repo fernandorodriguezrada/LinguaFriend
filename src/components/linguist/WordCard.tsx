@@ -6,24 +6,18 @@ import type { FeatureToggleState } from '@/lib/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox'; // Added Checkbox
-import { Label } from '@/components/ui/label'; // Added Label
+// Removed Checkbox and Label as word-level selection is removed
 import { BookOpenText, Volume2 } from 'lucide-react';
 
 interface WordCardProps {
   wordAnalysis: WordAnalysisDetail;
   featureToggles: FeatureToggleState;
-  selectable?: boolean; // New prop
-  isSelected?: boolean; // New prop
-  onSelectToggle?: (word: WordAnalysisDetail, isSelected: boolean) => void; // New prop
+  // Removed selectable, isSelected, onSelectToggle
 }
 
 export function WordCard({ 
   wordAnalysis, 
   featureToggles,
-  selectable = false,
-  isSelected = false,
-  onSelectToggle 
 }: WordCardProps) {
   const { word, role, definition, synonyms, usageTips } = wordAnalysis;
 
@@ -37,13 +31,7 @@ export function WordCard({
     }
   };
 
-  const handleCheckboxChange = (checked: boolean) => {
-    if (onSelectToggle) {
-      onSelectToggle(wordAnalysis, checked);
-    }
-  };
-
-  const uniqueId = `word-select-${word.replace(/\s+/g, '-')}-${role.replace(/\s+/g, '-')}`;
+  // Removed handleCheckboxChange and uniqueId as checkbox is removed
 
   return (
     <Card className="bg-card/80 shadow-lg">
@@ -54,18 +42,7 @@ export function WordCard({
             {word}
           </CardTitle>
           <div className="flex items-center gap-2">
-            {selectable && onSelectToggle && (
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id={uniqueId}
-                  checked={isSelected}
-                  onCheckedChange={(checked) => handleCheckboxChange(checked as boolean)}
-                />
-                <Label htmlFor={uniqueId} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 sr-only">
-                  Seleccionar {word}
-                </Label>
-              </div>
-            )}
+            {/* Removed Checkbox and Label */}
             <Badge variant="secondary" className="font-normal">{role}</Badge>
           </div>
         </div>
