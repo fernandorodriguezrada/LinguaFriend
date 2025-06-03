@@ -7,11 +7,16 @@ import { SentenceInputForm } from '@/components/linguist/SentenceInputForm';
 import { AnalysisDisplay } from '@/components/linguist/AnalysisDisplay';
 import { TranslationDisplay } from '@/components/linguist/TranslationDisplay';
 import { FeatureToggleControls } from '@/components/linguist/FeatureToggleControls';
-import type { FeatureToggleState, AnalysisResult, ImprovementResult } from '@/lib/types';
+import type { FeatureToggleState, AnalysisResult, ImprovementResult, AnalysisHistoryItem, SentenceGroup, WordAnalysisDetail } from '@/lib/types';
 import { CommonMistakesDisplay } from '@/components/linguist/CommonMistakesDisplay';
+import { HistoryModal } from '@/components/history/HistoryModal';
+import { SentenceGroupsDisplay } from '@/components/groups/SentenceGroupsDisplay';
+import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
+import { useSentenceGroups } from '@/hooks/useSentenceGroups';
 import { handleAnalyzeSentence, type ActionState } from './actions';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { v4 as uuidv4 } from 'uuid'; // For unique IDs in WordAnalysisDetail if needed for selection
 
 const initialActionState: ActionState = {
   data: null,
@@ -25,7 +30,7 @@ const initialFeatureToggles: FeatureToggleState = {
   showUsageTips: true,
   focusOnVerbs: false,
   eli5Mode: false,
-  showImprovementSuggestions: true, // Default to true to maintain current behavior
+  showImprovementSuggestions: true,
 };
 
 export default function LinguaFriendPage() {
@@ -33,11 +38,29 @@ export default function LinguaFriendPage() {
   const [improvementResult, setImprovementResult] = useState<ImprovementResult>(null);
   const [currentSentence, setCurrentSentence] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
-
   const [featureToggles, setFeatureToggles] = useState<FeatureToggleState>(initialFeatureToggles);
-
   const [isPending, startTransition] = useTransition();
   const resultsContainerRef = useRef<HTMLDivElement>(null);
+
+  // History Hook
+  const { 
+    history, 
+    addHistoryItem, 
+    deleteHistoryItem, 
+    clearHistory,
+    getHistoryItemById
+  } = useAnalysisHistory();
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+
+  // Sentence Groups Hook
+  const { 
+    groups: sentenceGroups, 
+    createGroup, 
+    deleteGroup, 
+    addWordsToGroup,
+    removeWordFromGroup,
+    getGroupById
+  } = useSentenceGroups();
 
   const handleAnalysisFormSubmit = useCallback((result: ActionState) => {
     startTransition(() => {
@@ -47,18 +70,41 @@ export default function LinguaFriendPage() {
         setAnalysisResult(null);
         setImprovementResult(null);
       } else {
-        setAnalysisResult(result.data);
+        // Ensure wordAnalysis items have unique IDs for selection
+        const analysisDataWithWordIds = result.data ? {
+          ...result.data,
+          wordAnalysis: result.data.wordAnalysis.map(wa => ({ ...wa, id: wa.id || uuidv4() }))
+        } : null;
+        
+        setAnalysisResult(analysisDataWithWordIds);
         setImprovementResult(result.improvementData);
         setError(null);
+
+        // Save to history if successful and data exists
+        if (analysisDataWithWordIds && result.originalSentence) {
+          const historyEntry: AnalysisHistoryItem = {
+            id: Date.now().toString(), // Simple ID for now
+            originalSentence: result.originalSentence,
+            analysis: analysisDataWithWordIds, // Use data with word IDs
+            improvement: result.improvementData,
+            timestamp: Date.now(),
+          };
+          addHistoryItem(historyEntry);
+        }
       }
     });
-  }, [startTransition]);
+  }, [startTransition, addHistoryItem]);
 
   useEffect(() => {
-    if (resultsContainerRef.current && !isPending && !error && (analysisResult || improvementResult?.hasImprovements)) {
+    if (resultsContainerRef.current && !isPending && !error && (analysisResult || improvementResult?.hasImprovements || sentenceGroups.length > 0)) {
       resultsContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, [analysisResult, improvementResult, error, isPending]);
+  }, [analysisResult, improvementResult, sentenceGroups, error, isPending]);
+
+  const handleCreateSentenceGroup = async (name: string): Promise<SentenceGroup | null> => {
+    const newGroup = createGroup(name); // from useSentenceGroups hook
+    return newGroup;
+  };
 
 
   return (
@@ -74,6 +120,7 @@ export default function LinguaFriendPage() {
                   initialState={initialActionState}
                   serverAction={handleAnalyzeSentence}
                   currentFeatureToggles={featureToggles}
+                  onOpenHistory={() => setIsHistoryModalOpen(true)}
                 />
               </CardContent>
             </Card>
@@ -100,9 +147,15 @@ export default function LinguaFriendPage() {
             
             {!isPending && !error && (
               <div ref={resultsContainerRef}>
-                {(analysisResult || improvementResult?.hasImprovements) ? (
+                {(analysisResult || improvementResult?.hasImprovements || sentenceGroups.length > 0 || currentSentence ) ? ( // Show if there's anything to display
                   <div className="space-y-8">
-                    <TranslationDisplay originalSentence={currentSentence} />
+                    <SentenceGroupsDisplay 
+                        groups={sentenceGroups}
+                        onCreateGroup={handleCreateSentenceGroup}
+                        onDeleteGroup={deleteGroup}
+                        onRemoveWordFromGroup={removeWordFromGroup}
+                    />
+                    {currentSentence && <TranslationDisplay originalSentence={currentSentence} />}
                     {improvementResult && improvementResult.hasImprovements && (
                       <CommonMistakesDisplay improvement={improvementResult} />
                     )}
@@ -123,9 +176,8 @@ export default function LinguaFriendPage() {
                            <img 
                              src="https://placehold.co/600x400.png" 
                              alt="Image illustrating confusing English words or grammar concepts" 
-                             data-ai-hint="english learning grammar" 
-                             className="mt-6 rounded-[10px] mx-auto shadow-lg border-2 border-primary/90"
-                             style={{borderColor: 'hsl(210deg 100% 75% / 90%)'}}
+                             data-ai-hint="english learning grammar"
+                             className="mt-6 rounded-lg mx-auto shadow-lg border-2 border-primary/90"
                            />
                       </CardContent>
                   </Card>
@@ -138,6 +190,18 @@ export default function LinguaFriendPage() {
       <footer className="py-6 text-center text-sm text-muted-foreground border-t border-border/40">
         © {new Date().getFullYear()} LinguaFriend. Hecho con ❤️ para aprender inglés.
       </footer>
+
+      <HistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        historyItems={history}
+        onDeleteItem={deleteHistoryItem}
+        onClearHistory={clearHistory}
+        featureToggles={featureToggles}
+        sentenceGroups={sentenceGroups}
+        onCreateGroup={handleCreateSentenceGroup}
+        onAddWordsToGroup={addWordsToGroup}
+      />
     </div>
   );
 }

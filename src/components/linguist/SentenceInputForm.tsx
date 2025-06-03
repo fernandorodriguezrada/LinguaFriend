@@ -7,7 +7,7 @@ import { useActionState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { SendHorizonal, Loader2 } from 'lucide-react';
+import { SendHorizonal, Loader2, HistoryIcon } from 'lucide-react'; // Added HistoryIcon
 import type { ActionState } from '@/app/actions';
 import type { FeatureToggleState } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -18,12 +18,13 @@ interface SentenceInputFormProps {
   initialState: ActionState;
   serverAction: (prevState: ActionState | undefined, formData: FormData) => Promise<ActionState>;
   currentFeatureToggles: FeatureToggleState;
+  onOpenHistory: () => void; // New prop to open history modal
 }
 
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="w-full sm:w-auto">
+    <Button type="submit" disabled={pending} className="w-full sm:w-auto flex-grow sm:flex-grow-0">
       {pending ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       ) : (
@@ -34,7 +35,13 @@ function SubmitButton() {
   );
 }
 
-export function SentenceInputForm({ onAnalysisResult, initialState, serverAction, currentFeatureToggles }: SentenceInputFormProps) {
+export function SentenceInputForm({ 
+  onAnalysisResult, 
+  initialState, 
+  serverAction, 
+  currentFeatureToggles,
+  onOpenHistory 
+}: SentenceInputFormProps) {
   const [state, formAction] = useActionState(serverAction, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
@@ -54,8 +61,8 @@ export function SentenceInputForm({ onAnalysisResult, initialState, serverAction
           title: "Análisis Completo",
           description: "La oración ha sido procesada.",
         });
-        formRef.current?.reset();
-        setInputValue('');
+        // formRef.current?.reset(); // Keep the sentence for potential history saving context
+        // setInputValue(''); // Keep input value in case user wants to re-submit or copy
       }
     }
   }, [state, onAnalysisResult, toast]);
@@ -64,8 +71,11 @@ export function SentenceInputForm({ onAnalysisResult, initialState, serverAction
     let value = e.target.value;
     // Remove multiple spaces
     value = value.replace(/\s\s+/g, ' ');
-    if (value.length > 0 && value !== " ") {
-      value = value.charAt(0).toUpperCase() + value.slice(1);
+    // Capitalize first letter only if field is not empty and not just a space
+    if (value.length > 0 && value.trim().length > 0 && value === value.trimStart()) {
+        if (value === value.trim() || value.indexOf(' ') === -1 || value.indexOf(' ') > 0 ) {
+             value = value.charAt(0).toUpperCase() + value.slice(1);
+        }
     }
     setInputValue(value);
   };
@@ -75,10 +85,11 @@ export function SentenceInputForm({ onAnalysisResult, initialState, serverAction
       e.preventDefault();
       if (formRef.current && inputValue.trim() !== '') {
         const formData = new FormData(formRef.current);
-        // Manually append toggles that are not direct form elements if needed by action
         formData.set('eli5Mode', currentFeatureToggles.eli5Mode ? 'on' : 'off');
         formData.set('showImprovementSuggestions', currentFeatureToggles.showImprovementSuggestions ? 'on' : 'off');
-        formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        // Trigger submit
+        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+        formRef.current.dispatchEvent(submitEvent);
       }
     }
   };
@@ -111,11 +122,20 @@ export function SentenceInputForm({ onAnalysisResult, initialState, serverAction
           onKeyDown={handleKeyDown}
           required
         />
-        {/* Hidden inputs for toggles not directly part of the form structure */}
         <input type="hidden" name="eli5Mode" value={currentFeatureToggles.eli5Mode ? 'on' : 'off'} />
         <input type="hidden" name="showImprovementSuggestions" value={currentFeatureToggles.showImprovementSuggestions ? 'on' : 'off'} />
       </div>
-      <div className="flex justify-end">
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:items-center gap-3">
+        <Button 
+            type="button" 
+            variant="outline" 
+            onClick={onOpenHistory} 
+            className="w-full sm:w-auto order-last sm:order-first"
+            aria-label="Ver historial de análisis"
+        >
+          <HistoryIcon className="mr-2 h-4 w-4" />
+          Historial
+        </Button>
         <SubmitButton />
       </div>
     </form>

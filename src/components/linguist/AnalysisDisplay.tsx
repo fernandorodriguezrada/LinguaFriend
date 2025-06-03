@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { ExtendedAnalyzeSentenceOutput } from '@/lib/types';
+import type { ExtendedAnalyzeSentenceOutput, WordAnalysisDetail } from '@/lib/types';
 import type { FeatureToggleState } from '@/lib/types';
 import { WordCard } from './WordCard';
 import { ColorCodedSentence, GrammarLegend } from './ColorCodedSentence';
@@ -12,12 +12,21 @@ import { CheckCircle2, BookMarked, ListTree, MessageSquareQuote } from 'lucide-r
 interface AnalysisDisplayProps {
   analysis: ExtendedAnalyzeSentenceOutput;
   featureToggles: FeatureToggleState;
+  isSelectableMode?: boolean; // For history modal word selection
+  selectedWordsForGrouping?: WordAnalysisDetail[]; // Words currently selected
+  onWordSelectToggle?: (word: WordAnalysisDetail, isSelected: boolean) => void; // Callback for selection
 }
 
-export function AnalysisDisplay({ analysis, featureToggles }: AnalysisDisplayProps) {
+export function AnalysisDisplay({ 
+  analysis, 
+  featureToggles, 
+  isSelectableMode = false,
+  selectedWordsForGrouping = [],
+  onWordSelectToggle
+}: AnalysisDisplayProps) {
   const { tense, grammarBreakdown, wordAnalysis, sentenceParts, idiomExplanation } = analysis;
 
-  const filteredWordAnalysis = featureToggles.focusOnVerbs
+  const filteredWordAnalysis = featureToggles.focusOnVerbs && !isSelectableMode // Don't filter if in selection mode
     ? wordAnalysis.filter(word => word.role.toLowerCase().includes('verb'))
     : wordAnalysis;
 
@@ -65,21 +74,27 @@ export function AnalysisDisplay({ analysis, featureToggles }: AnalysisDisplayPro
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center gap-2">
               <ListTree className="h-6 w-6 text-primary" />
-              Análisis Detallado por Palabra
+              Análisis Detallado por Palabra {isSelectableMode && "(Selecciona palabras para agrupar)"}
             </CardTitle>
             <CardDescription>
-              {featureToggles.focusOnVerbs ? "Mostrando solo verbos." : "Haz clic en cada palabra para ver detalles."}
+              {featureToggles.focusOnVerbs && !isSelectableMode ? "Mostrando solo verbos." : "Haz clic en cada palabra para ver detalles."}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Accordion type="multiple" className="w-full space-y-3">
+            <Accordion type="multiple" className="w-full space-y-3" defaultValue={isSelectableMode ? filteredWordAnalysis.map((_,idx) => `item-${idx}`) : undefined}>
               {filteredWordAnalysis.map((wordData, index) => (
-                <AccordionItem key={index} value={`item-${index}`} className="border-b-0">
+                <AccordionItem key={wordData.id || index} value={`item-${index}`} className="border-b-0">
                   <AccordionTrigger className="bg-card hover:bg-muted/50 p-4 rounded-md shadow font-semibold text-lg">
                     {wordData.word}
                   </AccordionTrigger>
                   <AccordionContent className="p-1 pt-2">
-                    <WordCard wordAnalysis={wordData} featureToggles={featureToggles} />
+                    <WordCard 
+                      wordAnalysis={wordData} 
+                      featureToggles={featureToggles}
+                      selectable={isSelectableMode}
+                      isSelected={!!selectedWordsForGrouping.find(sw => sw.word === wordData.word && sw.role === wordData.role)}
+                      onSelectToggle={onWordSelectToggle}
+                    />
                   </AccordionContent>
                 </AccordionItem>
               ))}
@@ -87,7 +102,7 @@ export function AnalysisDisplay({ analysis, featureToggles }: AnalysisDisplayPro
           </CardContent>
         </Card>
       )}
-       {featureToggles.focusOnVerbs && filteredWordAnalysis.length === 0 && (
+       {featureToggles.focusOnVerbs && filteredWordAnalysis.length === 0 && !isSelectableMode && (
         <Card className="shadow-lg">
           <CardContent className="p-6">
              <p className="text-muted-foreground text-center">No se encontraron verbos en esta oración o el análisis no identificó verbos.</p>
