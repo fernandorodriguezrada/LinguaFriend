@@ -136,7 +136,6 @@ export default function LinguaFriendPage() {
       didScroll = true;
     }
 
-    // Toggle zoom and focus mode only if there's content or if we scrolled
     if (didScroll || analysisResult || improvementResult?.hasImprovements || currentSentence) {
        setIsContentScaled(prev => !prev);
        setIsLeftColumnHidden(prev => !prev);
@@ -169,8 +168,8 @@ export default function LinguaFriendPage() {
       setLoadedTranslation(item.translatedSentence);
       setError(null);
       setIsHistoryModalOpen(false); 
-      setIsContentScaled(false); // Reset scale when loading new item
-      setIsLeftColumnHidden(false); // Reset focus mode when loading new item
+      setIsContentScaled(false); 
+      setIsLeftColumnHidden(false); 
     });
   };
 
@@ -223,8 +222,8 @@ export default function LinguaFriendPage() {
               <div 
                 ref={resultsContainerRef}
                 style={{
-                  transform: isContentScaled ? 'scale(1.15)' : 'scale(1)',
-                  transformOrigin: isLeftColumnHidden ? 'top' : 'top left', // Adjust origin when left column is hidden
+                  transform: isContentScaled ? 'scale(1.1)' : 'scale(1)',
+                  transformOrigin: isLeftColumnHidden ? 'top' : 'top left', 
                   transition: 'transform 0.3s ease-in-out',
                 }}
               >
