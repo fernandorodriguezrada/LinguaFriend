@@ -45,6 +45,7 @@ export default function LinguaFriendPage() {
   
   const resultsContainerRef = useRef<HTMLDivElement>(null);
   const translationDisplayRef = useRef<HTMLDivElement>(null);
+  const [isContentScaled, setIsContentScaled] = useState(false);
 
 
   const {
@@ -81,6 +82,7 @@ export default function LinguaFriendPage() {
         setAnalysisResult(analysisDataWithWordIds);
         setImprovementResult(result.improvementData);
         setError(null);
+        setIsContentScaled(false); // Reset scale on new analysis
 
         let finalTranslatedSentence: string | undefined = undefined;
         if (analysisDataWithWordIds && result.originalSentence) {
@@ -120,13 +122,21 @@ export default function LinguaFriendPage() {
   }, [analysisResult, improvementResult, currentSentence, isPending]);
 
   const handleZoomToAnalysisContent = useCallback(() => {
+    let didScroll = false;
     if (translationDisplayRef.current) {
       translationDisplayRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      didScroll = true;
     } else if (resultsContainerRef.current) {
       resultsContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      didScroll = true;
     }
-    // If neither is available, do nothing.
-  }, []); // Dependencies are stable refs
+
+    // Toggle zoom only if there's content to zoom or if we scrolled
+    if (didScroll || analysisResult || improvementResult?.hasImprovements || currentSentence) {
+       setIsContentScaled(prev => !prev);
+    }
+
+  }, [analysisResult, improvementResult, currentSentence]); 
 
   useEffect(() => {
     window.addEventListener('zoomToAnalysisContent', handleZoomToAnalysisContent);
@@ -153,6 +163,7 @@ export default function LinguaFriendPage() {
       setLoadedTranslation(item.translatedSentence);
       setError(null);
       setIsHistoryModalOpen(false); 
+      setIsContentScaled(false); // Reset scale when loading new item from history/group
     });
   };
 
@@ -196,7 +207,16 @@ export default function LinguaFriendPage() {
             )}
 
             {!isPending && !error && (
-              <div ref={resultsContainerRef}>
+              <div 
+                ref={resultsContainerRef}
+                style={{
+                  transform: isContentScaled ? 'scale(1.15)' : 'scale(1)',
+                  transformOrigin: 'top left',
+                  transition: 'transform 0.3s ease-in-out',
+                }}
+                // Add a wrapper div if scaling causes layout issues with grid siblings
+                // Or adjust parent layout (lg:col-span-2) if necessary
+              >
                  <SentenceGroupsDisplay
                     groups={sentenceGroups}
                     onCreateGroup={handleCreateSentenceGroup}
@@ -267,3 +287,5 @@ export default function LinguaFriendPage() {
     </div>
   );
 }
+
+    
