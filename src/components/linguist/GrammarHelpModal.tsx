@@ -51,17 +51,17 @@ export function GrammarHelpModal({ isOpen, onClose, terms }: GrammarHelpModalPro
           </DialogDescription>
         </DialogHeader>
         <ScrollArea className="flex-grow min-h-0 pr-6 -mr-6 mb-2">
-          <div className="space-y-3 p-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-1">
             {terms.map(term => {
               const contrastClass = getContrastTextClass(term.identifier);
               return (
-                <Card key={term.identifier} className={cn("shadow-md", term.bgColorClass)}>
+                <Card key={term.identifier} className={cn("shadow-md flex flex-col", term.bgColorClass)}>
                   <CardHeader className="py-3 px-4">
                     <CardTitle className={cn("text-lg font-semibold", contrastClass)}>
                       {term.title}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className={cn("pb-3 px-4 space-y-1 text-sm", contrastClass)}>
+                  <CardContent className={cn("pb-3 px-4 space-y-1 text-sm flex-grow", contrastClass)}>
                     <p>{term.definition}</p>
                     <p className="opacity-90">
                       <span className="font-medium">Ejemplo:</span> {term.example}
@@ -81,3 +81,4 @@ export function GrammarHelpModal({ isOpen, onClose, terms }: GrammarHelpModalPro
     </Dialog>
   );
 }
+
