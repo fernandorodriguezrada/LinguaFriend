@@ -128,20 +128,23 @@ export default function LinguaFriendPage() {
 
   const handleZoomToAnalysisContent = useCallback(() => {
     let didScroll = false;
-    if (translationDisplayRef.current) {
-      translationDisplayRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      didScroll = true;
-    } else if (resultsContainerRef.current) {
-      resultsContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Determine the primary scroll target
+    const scrollTarget = translationDisplayRef.current || 
+                         (resultsContainerRef.current && (analysisResult || improvementResult?.hasImprovements || currentSentence) ? resultsContainerRef.current : null);
+
+    if (scrollTarget) {
+      scrollTarget.scrollIntoView({ behavior: 'instant', block: 'start' });
       didScroll = true;
     }
-
-    if (didScroll || analysisResult || improvementResult?.hasImprovements || currentSentence) {
+    
+    // Only toggle scale/hide if a scroll target was found OR if there's analysis content to zoom into
+    // OR if we are currently scaled/hidden (to allow unzooming even if content disappeared)
+    if (didScroll || analysisResult || improvementResult?.hasImprovements || currentSentence || isContentScaled || isLeftColumnHidden) {
        setIsContentScaled(prev => !prev);
        setIsLeftColumnHidden(prev => !prev);
     }
 
-  }, [analysisResult, improvementResult, currentSentence]); 
+  }, [analysisResult, improvementResult, currentSentence, isContentScaled, isLeftColumnHidden]); 
 
   useEffect(() => {
     window.addEventListener('zoomToAnalysisContent', handleZoomToAnalysisContent);
@@ -199,8 +202,6 @@ export default function LinguaFriendPage() {
 
           <div className={cn(
             "space-y-8 transition-all duration-300 ease-in-out",
-            // When content is scaled, it should remain in its original grid span (lg:col-span-2)
-            // It expands to lg:col-span-3 only when left column is hidden AND content is NOT scaled.
             isContentScaled ? "lg:col-span-2" : (isLeftColumnHidden ? "lg:col-span-3" : "lg:col-span-2")
           )}>
             {isPending && (
@@ -225,21 +226,26 @@ export default function LinguaFriendPage() {
                 ref={resultsContainerRef}
                 style={{
                   transform: isContentScaled ? 'scale(1.20)' : 'scale(1)',
-                  transformOrigin: 'top left', // Always scale from top left when scaled
+                  transformOrigin: 'top left', 
                   transition: 'transform 0.3s ease-in-out',
                 }}
               >
-                 <SentenceGroupsDisplay
-                    groups={sentenceGroups}
-                    onCreateGroup={handleCreateSentenceGroup}
-                    onUpdateGroup={handleUpdateSentenceGroup}
-                    onDeleteGroup={deleteGroup}
-                    onRemoveHistoryItemFromGroup={removeHistoryItemFromGroup}
-                    onViewHistoryItemDetails={handleViewHistoryItemInGroup}
-                />
+                {!isContentScaled && (
+                  <SentenceGroupsDisplay
+                      groups={sentenceGroups}
+                      onCreateGroup={handleCreateSentenceGroup}
+                      onUpdateGroup={handleUpdateSentenceGroup}
+                      onDeleteGroup={deleteGroup}
+                      onRemoveHistoryItemFromGroup={removeHistoryItemFromGroup}
+                      onViewHistoryItemDetails={handleViewHistoryItemInGroup}
+                  />
+                )}
 
                 {(analysisResult || improvementResult?.hasImprovements || currentSentence ) ? (
-                  <div className="space-y-8 mt-8">
+                  <div className={cn(
+                    "space-y-8",
+                    isContentScaled ? "mt-0" : "mt-8" 
+                  )}>
                     {currentSentence && (
                       <TranslationDisplay 
                         ref={translationDisplayRef} 
@@ -258,7 +264,7 @@ export default function LinguaFriendPage() {
                     )}
                   </div>
                 ) : (
-                  !sentenceGroups.length && ( 
+                  !isContentScaled && !sentenceGroups.length && ( 
                     <Card className="shadow-md mt-8">
                         <CardContent className="p-10 text-center">
                             <h2 className="text-2xl font-headline text-foreground/80">Bienvenido a LinguaFriend</h2>
