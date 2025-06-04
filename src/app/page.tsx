@@ -70,8 +70,8 @@ export default function LinguaFriendPage() {
   const handleAnalysisFormSubmit = useCallback(async (result: ActionState) => {
     startTransition(async () => {
       setCurrentSentence(result.originalSentence || '');
-      setIsLeftColumnHidden(false); // Reset focus mode on new analysis
-      setIsContentScaled(false); // Reset scale on new analysis
+      setIsLeftColumnHidden(false); 
+      setIsContentScaled(false); 
 
       if (result.error) {
         setError(result.error);
@@ -199,7 +199,9 @@ export default function LinguaFriendPage() {
 
           <div className={cn(
             "space-y-8 transition-all duration-300 ease-in-out",
-            isLeftColumnHidden ? "lg:col-span-3" : "lg:col-span-2"
+            // When content is scaled, it should remain in its original grid span (lg:col-span-2)
+            // It expands to lg:col-span-3 only when left column is hidden AND content is NOT scaled.
+            isContentScaled ? "lg:col-span-2" : (isLeftColumnHidden ? "lg:col-span-3" : "lg:col-span-2")
           )}>
             {isPending && (
               <div className="flex flex-col items-center justify-center p-10 bg-card rounded-lg shadow-md">
@@ -222,8 +224,8 @@ export default function LinguaFriendPage() {
               <div 
                 ref={resultsContainerRef}
                 style={{
-                  transform: isContentScaled ? 'scale(1.1)' : 'scale(1)',
-                  transformOrigin: isLeftColumnHidden ? 'top' : 'top left', 
+                  transform: isContentScaled ? 'scale(1.20)' : 'scale(1)',
+                  transformOrigin: 'top left', // Always scale from top left when scaled
                   transition: 'transform 0.3s ease-in-out',
                 }}
               >
@@ -297,5 +299,4 @@ export default function LinguaFriendPage() {
     </div>
   );
 }
-
     
