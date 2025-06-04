@@ -296,7 +296,7 @@ export default function LinguaFriendPage() {
                         )}
                       </div>
                     ) : (
-                      !(isContentScaled && isLeftColumnHidden) && (
+                      !(isContentScaled && isLeftColumnHidden) && sentenceGroups.length === 0 && (
                         <Card className="shadow-md mt-8">
                             <CardContent className="p-10 text-center">
                                 <h2 className="text-2xl font-headline text-foreground/80">Bienvenido a LinguaFriend</h2>
