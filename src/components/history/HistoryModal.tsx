@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
+import { Label } from "@/components/ui/label";
 import { AnalysisDisplay } from '@/components/linguist/AnalysisDisplay';
 import { CommonMistakesDisplay } from '@/components/linguist/CommonMistakesDisplay';
 import type { AnalysisHistoryItem, FeatureToggleState, SentenceGroup, PastelColor } from '@/lib/types';
@@ -130,7 +130,7 @@ export function HistoryModal({
               />
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3 p-1"> {/* Added p-1 here to give space for card rings */}
               {historyItems.length === 0 ? (
                 <p className="text-muted-foreground text-center py-8">No hay historial disponible.</p>
               ) : (
@@ -140,7 +140,7 @@ export function HistoryModal({
                   const isDefaultColorGroup = groupForItem && (!groupForItem.colorIdentifier || groupForItem.colorIdentifier === 'default');
 
                   return (
-                    <Card key={item.id} className={`hover:shadow-md transition-shadow ${selectedHistoryItemIds.includes(item.id) ? 'ring-2 ring-primary' : ''}`}>
+                    <Card key={item.id} className={`hover:shadow-md transition-shadow ${selectedHistoryItemIds.includes(item.id) ? 'ring-2 ring-primary ring-offset-background ring-offset-1' : ''}`}>
                       <CardHeader className="flex flex-row items-start justify-between gap-4 pb-3">
                         <div className="flex items-start gap-4">
                           <Checkbox
@@ -162,10 +162,10 @@ export function HistoryModal({
                       </CardHeader>
                       <CardContent className="pt-0 flex justify-between items-center">
                          {groupForItem ? (
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0"> {/* Increased gap and text size */}
                             <span 
                               className={cn(
-                                "h-2.5 w-2.5 rounded-full inline-block", 
+                                "h-3 w-3 rounded-full inline-block", // Increased dot size
                                 dotBgClass,
                                 isDefaultColorGroup && "border border-border" 
                               )}
@@ -226,7 +226,7 @@ export function HistoryModal({
           isOpen={isAddToGroupDialogOpen}
           onClose={() => setIsAddToGroupDialogOpen(false)}
           groups={sentenceGroups}
-          onCreateGroup={handleCreateAndAdd} // Passes (name, colorIdentifier)
+          onCreateGroup={handleCreateAndAdd} 
           onSelectGroup={handleConfirmAddToGroup}
           itemCount={selectedHistoryItemIds.length}
         />
