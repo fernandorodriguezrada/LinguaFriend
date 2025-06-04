@@ -25,7 +25,7 @@ interface SentenceInputFormProps {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="w-full sm:w-auto flex-grow sm:flex-grow-0 sm:shrink-0">
+    <Button type="submit" disabled={pending} className="w-full sm:w-auto sm:shrink-0">
       {pending ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       ) : (
@@ -133,7 +133,7 @@ export function SentenceInputForm({
             size="icon"
             onClick={onOpenHistory}
             aria-label="Ver historial de análisis"
-            className="w-full sm:shrink-0"
+            className="w-full sm:w-auto sm:shrink-0"
         >
           <HistoryIcon className="h-4 w-4" />
         </Button>
