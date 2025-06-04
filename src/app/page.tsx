@@ -15,7 +15,7 @@ import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
 import { useSentenceGroups } from '@/hooks/useSentenceGroups';
 import { handleAnalyzeSentence, type ActionState } from './actions';
 import { translateSentence } from '@/ai/flows/translate-sentence-flow';
-import { Loader2, AlertTriangle, ZoomOut } from 'lucide-react';
+import { Loader2, AlertTriangle, ZoomOut, Github } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { v4 as uuidv4 } from 'uuid';
@@ -180,10 +180,10 @@ export default function LinguaFriendPage() {
 
   const rightColumnSpanClass = 
     (isContentScaled && isLeftColumnHidden) 
-    ? 'lg:col-span-3' // Full width parent when zoomed
+    ? 'lg:col-span-3' 
     : isLeftColumnHidden 
-    ? 'lg:col-span-3' // Full width if left is hidden but not scaled
-    : 'lg:col-span-2'; // Default to 2/3 width
+    ? 'lg:col-span-3' 
+    : 'lg:col-span-2'; 
 
   const resultsContainerClasses = cn({
     'lg:w-2/3 mx-auto': isContentScaled && isLeftColumnHidden, 
@@ -305,7 +305,18 @@ export default function LinguaFriendPage() {
         </div>
       </main>
       <footer className="py-6 text-center text-sm text-muted-foreground border-t border-border/40">
-        © {new Date().getFullYear()} LinguaFriend. Hecho con ❤️ para aprender inglés.
+        <div className="flex items-center justify-center gap-2">
+            <span>© 2025 LinguaFriend. Hecho con ❤️ por frDev para aprender inglés.</span>
+            <a
+                href="https://github.com/fernandorodriguezrada"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="frDev GitHub"
+                className="text-muted-foreground hover:text-primary transition-colors"
+            >
+                <Github className="h-5 w-5" />
+            </a>
+        </div>
       </footer>
 
       <HistoryModal
