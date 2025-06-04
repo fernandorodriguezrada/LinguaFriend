@@ -50,8 +50,9 @@ export function GrammarHelpModal({ isOpen, onClose, terms }: GrammarHelpModalPro
             Definiciones y ejemplos de los roles gramaticales usados en el análisis.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="flex-grow min-h-0"> {/* Removed pr-2 -mr-2 */}
-          <div className="space-y-3 py-1 pr-2">
+        {/* Mimicking HistoryModal's ScrollArea classes and inner div padding */}
+        <ScrollArea className="flex-grow min-h-0 pr-6 -mr-6 mb-2">
+          <div className="space-y-3 p-1"> {/* Adjusted padding to p-1 like HistoryModal */}
             {terms.map(term => {
               const contrastClass = getContrastTextClass(term.identifier);
               return (
@@ -81,4 +82,3 @@ export function GrammarHelpModal({ isOpen, onClose, terms }: GrammarHelpModalPro
     </Dialog>
   );
 }
-
