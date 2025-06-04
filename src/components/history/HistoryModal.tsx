@@ -11,8 +11,8 @@ import { Label } from '@/components/ui/label';
 import { AnalysisDisplay } from '@/components/linguist/AnalysisDisplay';
 import { CommonMistakesDisplay } from '@/components/linguist/CommonMistakesDisplay';
 import type { AnalysisHistoryItem, FeatureToggleState, SentenceGroup } from '@/lib/types';
-import { availablePastelColors } from '@/lib/types'; // Import availablePastelColors
-import { Trash2, PlusCircle, Eye, Group } from 'lucide-react'; // Added Group icon
+import { availablePastelColors } from '@/lib/types';
+import { Trash2, PlusCircle, Eye } from 'lucide-react';
 import { AddToGroupDialog } from '@/components/groups/AddToGroupDialog';
 import { cn } from '@/lib/utils';
 
@@ -24,14 +24,14 @@ interface HistoryModalProps {
   onClearHistory: () => void;
   featureToggles: FeatureToggleState;
   sentenceGroups: SentenceGroup[];
-  onCreateGroup: (name: string, colorIdentifier: string) => Promise<SentenceGroup | null>; // Added colorIdentifier
+  onCreateGroup: (name: string, colorIdentifier: string) => Promise<SentenceGroup | null>;
   onAddHistoryItemsToGroup: (groupId: string, items: AnalysisHistoryItem[]) => void;
   onViewDetails: (item: AnalysisHistoryItem) => void;
 }
 
 const getGroupDotColorClass = (colorIdentifier?: string): string => {
   const color = availablePastelColors.find(c => c.identifier === colorIdentifier);
-  return color ? color.bgClass : 'bg-muted';
+  return color ? color.bgClass : 'bg-muted'; // bg-muted is a fallback
 };
 
 export function HistoryModal({
@@ -56,6 +56,7 @@ export function HistoryModal({
 
   const handleViewDetailsOnPage = (item: AnalysisHistoryItem) => {
     onViewDetails(item);
+    // No need to close modal here, onViewDetails in page.tsx handles it if necessary
   };
 
   const handleBackToList = () => {
@@ -88,10 +89,7 @@ export function HistoryModal({
   };
 
   const handleCreateAndAdd = async (groupName: string) => {
-    // In AddToGroupDialog, we only get groupName, not color. Default color or a fixed one can be used.
-    // For more advanced color selection here, AddToGroupDialog would need a color picker too.
-    // For now, let's assume a default color or the first available one for groups created this way.
-    const newGroup = await onCreateGroup(groupName, availablePastelColors[0].identifier);
+    const newGroup = await onCreateGroup(groupName, availablePastelColors[0].identifier); // Default color
     const itemsToAdd = getSelectedHistoryItems();
     if (newGroup && itemsToAdd.length > 0) {
       onAddHistoryItemsToGroup(newGroup.id, itemsToAdd);
@@ -112,7 +110,7 @@ export function HistoryModal({
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleModalClose(); }}>
       <DialogContent className="max-w-3xl h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>{selectedHistoryItemDetail ? `Detalles de "${selectedHistoryItemDetail.originalSentence.substring(0,30)}..." (En Modal)` : "Historial de Análisis"}</DialogTitle>
+          <DialogTitle>{selectedHistoryItemDetail ? `Detalles de "${selectedHistoryItemDetail.originalSentence.substring(0,30)}..."` : "Historial de Análisis"}</DialogTitle>
           <DialogDescription>
             {selectedHistoryItemDetail ? "Revisa el análisis detallado o cárgalo en la página principal." : "Selecciona análisis para agrupar o revisa detalles."}
           </DialogDescription>
@@ -136,42 +134,50 @@ export function HistoryModal({
               ) : (
                 historyItems.map(item => {
                   const groupForItem = sentenceGroups.find(g => g.historyItems.some(hi => hi.id === item.id));
-                  const dotColorClass = groupForItem ? getGroupDotColorClass(groupForItem.colorIdentifier) : '';
+                  const dotBgClass = groupForItem ? getGroupDotColorClass(groupForItem.colorIdentifier) : '';
+                  const isDefaultColorGroup = groupForItem && (!groupForItem.colorIdentifier || groupForItem.colorIdentifier === 'default');
 
                   return (
                     <Card key={item.id} className={`hover:shadow-md transition-shadow ${selectedHistoryItemIds.includes(item.id) ? 'ring-2 ring-primary' : ''}`}>
-                      <CardHeader className="flex flex-row items-start gap-4">
-                        <Checkbox
-                          id={`history-select-${item.id}`}
-                          checked={selectedHistoryItemIds.includes(item.id)}
-                          onCheckedChange={(checked) => handleHistoryItemSelectToggle(item.id, checked as boolean)}
-                          aria-labelledby={`history-title-${item.id}`}
-                          className="mt-1"
-                        />
-                        <div className="flex-grow">
-                          <Label htmlFor={`history-select-${item.id}`} className="cursor-pointer">
-                              <CardTitle id={`history-title-${item.id}`} className="text-lg truncate">{item.originalSentence}</CardTitle>
-                          </Label>
-                          <CardDescription>
-                              Analizado el: {new Date(item.timestamp).toLocaleString()}
-                          </CardDescription>
+                      <CardHeader className="flex flex-row items-start justify-between gap-4 pb-3">
+                        <div className="flex items-start gap-4">
+                          <Checkbox
+                            id={`history-select-${item.id}`}
+                            checked={selectedHistoryItemIds.includes(item.id)}
+                            onCheckedChange={(checked) => handleHistoryItemSelectToggle(item.id, checked as boolean)}
+                            aria-labelledby={`history-title-${item.id}`}
+                            className="mt-1 shrink-0"
+                          />
+                          <div className="flex-grow">
+                            <Label htmlFor={`history-select-${item.id}`} className="cursor-pointer">
+                                <CardTitle id={`history-title-${item.id}`} className="text-lg truncate">{item.originalSentence}</CardTitle>
+                            </Label>
+                            <CardDescription className="text-xs">
+                                Analizado el: {new Date(item.timestamp).toLocaleString()}
+                            </CardDescription>
+                          </div>
                         </div>
+                        {groupForItem && (
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0 text-right mt-1">
+                            <span 
+                              className={cn(
+                                "h-2.5 w-2.5 rounded-full inline-block", 
+                                dotBgClass,
+                                isDefaultColorGroup && "border border-border" // Add border for default color to make it visible
+                              )}
+                              title={`Grupo: ${groupForItem.name}`}
+                            ></span>
+                            <span className="truncate max-w-[100px]" title={groupForItem.name}>{groupForItem.name}</span>
+                          </div>
+                        )}
                       </CardHeader>
-                      <CardContent className="flex justify-between items-center">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          {groupForItem && (
-                            <>
-                              <span className={cn("h-2.5 w-2.5 rounded-full inline-block", dotColorClass)}></span>
-                              <span>{groupForItem.name}</span>
-                            </>
-                          )}
-                        </div>
+                      <CardContent className="pt-0 flex justify-end items-center">
                         <div className="flex gap-2">
                           <Button variant="secondary" size="sm" onClick={() => handleViewDetailsOnPage(item)}>
                             <Eye className="mr-2 h-4 w-4" /> Ver en Página
                           </Button>
                           <Button variant="outline" size="sm" onClick={() => handleViewDetailsInModal(item)}>
-                            <Eye className="mr-2 h-4 w-4" /> Ver Detalles (Modal)
+                            <Eye className="mr-2 h-4 w-4" /> Detalles (Modal)
                           </Button>
                           <Button variant="destructive" size="sm" onClick={() => onDeleteItem(item.id)}>
                             <Trash2 className="mr-2 h-4 w-4" /> Eliminar
@@ -225,3 +231,4 @@ export function HistoryModal({
     </Dialog>
   );
 }
+
