@@ -21,7 +21,7 @@ export function PracticeLabModal({ isOpen, onClose }: PracticeLabModalProps) {
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl h-[75vh] flex flex-col p-0">
         <DialogHeader className="p-6 pb-4 border-b">
-          <DialogTitle className="text-2xl font-headline text-primary">Laboratorio de Práctica</DialogTitle>
+          <DialogTitle className="text-2xl font-headline">Laboratorio de Práctica</DialogTitle>
           <DialogDescription className="text-md text-muted-foreground">
             Escribe y experimenta con tus propias oraciones en inglés. ¡Este es tu espacio para practicar libremente!
           </DialogDescription>
