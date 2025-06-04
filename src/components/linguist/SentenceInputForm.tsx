@@ -120,20 +120,23 @@ export function SentenceInputForm({
         <input type="hidden" name="eli5Mode" value={currentFeatureToggles.eli5Mode ? 'on' : 'off'} />
         <input type="hidden" name="showImprovementSuggestions" value={currentFeatureToggles.showImprovementSuggestions ? 'on' : 'off'} />
       </div>
-      <div className="flex flex-col-reverse sm:flex-row sm:items-center w-full gap-3">
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between w-full gap-3">
+        {/* Analizar Oración Button - pushed to the left by justify-between */}
         <SubmitButton />
         
-        <div className="hidden sm:flex sm:flex-auto justify-center items-center px-1">
+        {/* Separator Container - centered in the space by justify-between */}
+        <div className="hidden sm:flex items-center"> {/* No flex-grow/shrink, just holds separator */}
           <Separator orientation="vertical" className="h-8" />
         </div>
 
+        {/* History Button - pushed to the right by justify-between */}
         <Button
             type="button"
             variant="outline"
             size="icon"
             onClick={onOpenHistory}
             aria-label="Ver historial de análisis"
-            className="w-full sm:w-10 sm:shrink-0"
+            className="w-full sm:w-10 sm:shrink-0" 
         >
           <HistoryIcon className="h-4 w-4" />
         </Button>
@@ -141,4 +144,3 @@ export function SentenceInputForm({
     </form>
   );
 }
-
