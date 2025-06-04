@@ -42,21 +42,21 @@ export default function LinguaFriendPage() {
   const [isPending, startTransition] = useTransition();
   const resultsContainerRef = useRef<HTMLDivElement>(null);
 
-  const { 
-    history, 
-    addHistoryItem, 
-    deleteHistoryItem, 
+  const {
+    history,
+    addHistoryItem,
+    deleteHistoryItem,
     clearHistory,
-    getHistoryItemById 
   } = useAnalysisHistory();
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
-  const { 
-    groups: sentenceGroups, 
-    createGroup, 
-    deleteGroup, 
-    addHistoryItemsToGroup, 
-    removeHistoryItemFromGroup, 
+  const {
+    groups: sentenceGroups,
+    createGroup,
+    updateGroup, // Added
+    deleteGroup,
+    addHistoryItemsToGroup,
+    removeHistoryItemFromGroup,
   } = useSentenceGroups();
 
   const handleAnalysisFormSubmit = useCallback((result: ActionState) => {
@@ -71,14 +71,14 @@ export default function LinguaFriendPage() {
           ...result.data,
           wordAnalysis: result.data.wordAnalysis.map(wa => ({ ...wa, id: wa.id || uuidv4() }))
         } : null;
-        
+
         setAnalysisResult(analysisDataWithWordIds);
         setImprovementResult(result.improvementData);
         setError(null);
 
         if (analysisDataWithWordIds && result.originalSentence) {
           const historyEntry: AnalysisHistoryItem = {
-            id: uuidv4(), 
+            id: uuidv4(),
             originalSentence: result.originalSentence,
             analysis: analysisDataWithWordIds,
             improvement: result.improvementData,
@@ -96,9 +96,13 @@ export default function LinguaFriendPage() {
     }
   }, [analysisResult, improvementResult, currentSentence, isPending]);
 
-  const handleCreateSentenceGroup = async (name: string): Promise<SentenceGroup | null> => {
-    const newGroup = createGroup(name);
+  const handleCreateSentenceGroup = async (name: string, colorIdentifier: string): Promise<SentenceGroup | null> => {
+    const newGroup = createGroup(name, colorIdentifier);
     return newGroup;
+  };
+  
+  const handleUpdateSentenceGroup = (groupId: string, updates: { name?: string; colorIdentifier?: string }) => {
+    updateGroup(groupId, updates);
   };
 
   const handleViewHistoryItemInGroup = (item: AnalysisHistoryItem) => {
@@ -150,41 +154,42 @@ export default function LinguaFriendPage() {
                 </CardContent>
               </Card>
             )}
-            
+
             {!isPending && !error && (
               <div ref={resultsContainerRef}>
-                 <SentenceGroupsDisplay 
+                 <SentenceGroupsDisplay
                     groups={sentenceGroups}
                     onCreateGroup={handleCreateSentenceGroup}
+                    onUpdateGroup={handleUpdateSentenceGroup}
                     onDeleteGroup={deleteGroup}
                     onRemoveHistoryItemFromGroup={removeHistoryItemFromGroup}
-                    onViewHistoryItemDetails={handleViewHistoryItemInGroup} 
+                    onViewHistoryItemDetails={handleViewHistoryItemInGroup}
                 />
 
                 {(analysisResult || improvementResult?.hasImprovements || currentSentence ) ? (
-                  <div className="space-y-8 mt-8"> 
+                  <div className="space-y-8 mt-8">
                     {currentSentence && <TranslationDisplay originalSentence={currentSentence} />}
                     {improvementResult && improvementResult.hasImprovements && (
                       <CommonMistakesDisplay improvement={improvementResult} />
                     )}
                     {analysisResult && (
-                      <AnalysisDisplay 
-                        analysis={analysisResult} 
-                        featureToggles={featureToggles} 
+                      <AnalysisDisplay
+                        analysis={analysisResult}
+                        featureToggles={featureToggles}
                       />
                     )}
                   </div>
                 ) : (
-                  !sentenceGroups.length && ( 
+                  !sentenceGroups.length && (
                     <Card className="shadow-md mt-8">
                         <CardContent className="p-10 text-center">
                             <h2 className="text-2xl font-headline text-foreground/80">Bienvenido a LinguaFriend</h2>
                             <p className="mt-2 text-muted-foreground">
                                 Escribe una oración en inglés en el panel de la izquierda y presiona "Analizar Oración" para comenzar.
                             </p>
-                             <img 
-                               src="https://placehold.co/600x400.png" 
-                               alt="Image illustrating confusing English words or grammar concepts" 
+                             <img
+                               src="https://placehold.co/600x400.png"
+                               alt="Image illustrating confusing English words or grammar concepts"
                                data-ai-hint="english learning grammar"
                                className="mt-6 rounded-lg mx-auto shadow-lg border-2 border-primary/90"
                              />
@@ -209,11 +214,10 @@ export default function LinguaFriendPage() {
         onClearHistory={clearHistory}
         featureToggles={featureToggles}
         sentenceGroups={sentenceGroups}
-        onCreateGroup={handleCreateSentenceGroup}
-        onAddHistoryItemsToGroup={addHistoryItemsToGroup} 
-        onViewDetails={(item) => { // Add this prop to allow HistoryModal to load item directly
+        onCreateGroup={(name: string, colorIdentifier: string) => handleCreateSentenceGroup(name, colorIdentifier).then(() => {})} // Simplified for dialog, actual group creation is above
+        onAddHistoryItemsToGroup={addHistoryItemsToGroup}
+        onViewDetails={(item) => { 
             handleViewHistoryItemInGroup(item);
-            setIsHistoryModalOpen(false); // Close modal after loading
         }}
       />
     </div>

@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import type { SentenceGroup, AnalysisHistoryItem } from '@/lib/types'; // Updated import
+import type { SentenceGroup, AnalysisHistoryItem } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
 
 const GROUPS_STORAGE_KEY = 'linguaFriendSentenceGroups';
@@ -17,13 +17,12 @@ export function useSentenceGroups() {
         const storedGroups = localStorage.getItem(GROUPS_STORAGE_KEY);
         if (storedGroups) {
           const parsedGroups = JSON.parse(storedGroups);
-          // Ensure all groups have historyItems initialized as an array
           const validatedGroups = parsedGroups.map((group: Partial<SentenceGroup>) => ({
-            ...group,
             id: group.id || uuidv4(),
             name: group.name || 'Unnamed Group',
             historyItems: Array.isArray(group.historyItems) ? group.historyItems : [],
             createdAt: group.createdAt || Date.now(),
+            colorIdentifier: group.colorIdentifier || 'default',
           }));
           setGroups(validatedGroups);
         }
@@ -47,12 +46,13 @@ export function useSentenceGroups() {
     }
   }, []);
 
-  const createGroup = useCallback((name: string): SentenceGroup => {
+  const createGroup = useCallback((name: string, colorIdentifier: string = 'default'): SentenceGroup => {
     const newGroup: SentenceGroup = {
       id: uuidv4(),
       name,
-      historyItems: [], 
+      historyItems: [],
       createdAt: Date.now(),
+      colorIdentifier: colorIdentifier,
     };
     setGroups(prevGroups => {
       const updatedGroups = [...prevGroups, newGroup];
@@ -60,6 +60,16 @@ export function useSentenceGroups() {
       return updatedGroups;
     });
     return newGroup;
+  }, [saveGroups]);
+
+  const updateGroup = useCallback((groupId: string, updates: { name?: string; colorIdentifier?: string }) => {
+    setGroups(prevGroups => {
+      const updatedGroups = prevGroups.map(group =>
+        group.id === groupId ? { ...group, ...updates, name: updates.name || group.name } : group
+      );
+      saveGroups(updatedGroups);
+      return updatedGroups;
+    });
   }, [saveGroups]);
 
   const deleteGroup = useCallback((groupId: string) => {
@@ -75,8 +85,7 @@ export function useSentenceGroups() {
       const updatedGroups = prevGroups.map(group => {
         if (group.id === groupId) {
           const currentHistoryItems = Array.isArray(group.historyItems) ? group.historyItems : [];
-          // Avoid duplicates based on history item ID
-          const newItems = itemsToAdd.filter(newItem => 
+          const newItems = itemsToAdd.filter(newItem =>
             !currentHistoryItems.some(existingItem => existingItem.id === newItem.id)
           );
           return { ...group, historyItems: [...currentHistoryItems, ...newItems] };
@@ -101,10 +110,10 @@ export function useSentenceGroups() {
       return updatedGroups;
     });
   }, [saveGroups]);
-  
+
   const getGroupById = useCallback((groupId: string): SentenceGroup | undefined => {
     return groups.find(g => g.id === groupId);
   }, [groups]);
 
-  return { groups, isLoading, createGroup, deleteGroup, addHistoryItemsToGroup, removeHistoryItemFromGroup, getGroupById };
+  return { groups, isLoading, createGroup, updateGroup, deleteGroup, addHistoryItemsToGroup, removeHistoryItemFromGroup, getGroupById };
 }

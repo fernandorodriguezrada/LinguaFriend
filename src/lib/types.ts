@@ -13,7 +13,7 @@ export interface WordAnalysisDetail {
   definition: string;
   synonyms: string[];
   usageTips: string;
-  id?: string; 
+  id?: string;
 }
 
 export interface ExtendedAnalyzeSentenceOutput extends OriginalAnalyzeSentenceOutput {
@@ -46,7 +46,29 @@ export interface AnalysisHistoryItem {
 export interface SentenceGroup {
   id: string; // uuid
   name: string;
-  historyItems: AnalysisHistoryItem[]; // Changed from words: WordAnalysisDetail[]
+  historyItems: AnalysisHistoryItem[];
   createdAt: number;
+  colorIdentifier?: string; // e.g., 'pink', 'green', etc.
 }
 
+export interface PastelColor {
+  name: string;
+  identifier: string;
+  bgClass: string; // Tailwind background class e.g., 'bg-pastel-pink'
+  textClass: string; // Tailwind text class e.g., 'text-pastel-pink' for borders or accents
+  hex?: string; // Optional: for display in color picker if needed
+}
+
+export const availablePastelColors: PastelColor[] = [
+  { name: 'Predeterminado', identifier: 'default', bgClass: 'bg-card', textClass: 'text-card-foreground' },
+  { name: 'Rosa', identifier: 'pink', bgClass: 'bg-pastel-pink', textClass: 'text-pastel-pink' },
+  { name: 'Verde', identifier: 'green', bgClass: 'bg-pastel-green', textClass: 'text-pastel-green' },
+  { name: 'Amarillo', identifier: 'yellow', bgClass: 'bg-pastel-yellow', textClass: 'text-pastel-yellow' },
+  { name: 'Morado', identifier: 'purple', bgClass: 'bg-pastel-purple', textClass: 'text-pastel-purple' },
+  { name: 'Azul', identifier: 'blue', bgClass: 'bg-pastel-blue', textClass: 'text-pastel-blue' },
+  { name: 'Naranja', identifier: 'orange', bgClass: 'bg-pastel-orange', textClass: 'text-pastel-orange' },
+  { name: 'Gris', identifier: 'gray', bgClass: 'bg-pastel-gray', textClass: 'text-pastel-gray' },
+  { name: 'Turquesa', identifier: 'teal', bgClass: 'bg-pastel-teal', textClass: 'text-pastel-teal' },
+  { name: 'Lima', identifier: 'lime', bgClass: 'bg-pastel-lime', textClass: 'text-pastel-lime' },
+  { name: 'Rosado', identifier: 'rose', bgClass: 'bg-pastel-rose', textClass: 'text-pastel-rose' },
+];
