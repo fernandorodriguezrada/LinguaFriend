@@ -51,17 +51,17 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Adjusted Lighter Pastel colors for grammar highlighting - Light Mode */
-    --pastel-pink: 350 100% 78%;   /* Verb - Adjusted */
-    --pastel-green: 145 60% 75%;  /* Noun - Adjusted */
-    --pastel-yellow: 45 100% 78%;  /* Adjective - Adjusted */
-    --pastel-purple: 260 100% 80%; /* Adverb - Adjusted */
-    --pastel-blue: 200 100% 80%;   /* Pronoun - Adjusted */
-    --pastel-orange: 30 100% 78%;  /* Preposition - Adjusted */
-    --pastel-gray: 210 20% 75%;   /* Conjunction - Adjusted */
-    --pastel-teal: 180 45% 77%;    /* Determiner - Adjusted */
-    --pastel-lime: 90 70% 78%;    /* Interjection - Adjusted */
-    --pastel-rose: 330 80% 80%;   /* Contraction - Adjusted */
+    /* Adjusted Lighter Pastel colors for grammar highlighting - Light Mode (more saturated) */
+    --pastel-pink: 350 100% 70%;
+    --pastel-green: 145 55% 65%;
+    --pastel-yellow: 50 100% 70%; 
+    --pastel-purple: 260 90% 72%;
+    --pastel-blue: 200 100% 70%;
+    --pastel-orange: 30 100% 68%;
+    --pastel-gray: 210 20% 65%;
+    --pastel-teal: 180 50% 68%;
+    --pastel-lime: 80 65% 68%; 
+    --pastel-rose: 330 85% 72%;
   }
 
   .dark {
@@ -109,17 +109,17 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Dark theme pastel colors - Adjusted for visibility and lighter feel */
-    --pastel-pink: 350 70% 70%; 
-    --pastel-green: 145 50% 72%;
-    --pastel-yellow: 45 80% 75%; 
-    --pastel-purple: 260 70% 75%;
-    --pastel-blue: 200 70% 72%; 
-    --pastel-orange: 30 70% 70%;
-    --pastel-gray: 210 20% 70%; 
-    --pastel-teal: 180 40% 70%;  
-    --pastel-lime: 90 50% 70%; 
-    --pastel-rose: 330 60% 80%; 
+    /* Dark theme pastel colors - Adjusted for better differentiation */
+    --pastel-pink: 350 80% 65%; 
+    --pastel-green: 145 60% 60%;
+    --pastel-yellow: 50 90% 68%; 
+    --pastel-purple: 260 80% 70%;
+    --pastel-blue: 200 80% 65%; 
+    --pastel-orange: 25 90% 65%;
+    --pastel-gray: 210 15% 60%; 
+    --pastel-teal: 180 55% 62%;  
+    --pastel-lime: 80 60% 65%; 
+    --pastel-rose: 330 70% 75%; 
   }
 }
 
@@ -158,41 +158,38 @@
 .bg-pastel-rose { background-color: hsl(var(--pastel-rose)); }
 
 /* Text colors for contrast on pastel backgrounds */
+/* For light theme pastels, use dark text */
 .text-on-pastel-pink { color: hsl(350 100% 20%); } 
-.dark .text-on-pastel-pink { color: hsl(350 100% 20%); }
-
 .text-on-pastel-green { color: hsl(145 60% 20%); }
-.dark .text-on-pastel-green { color: hsl(145 60% 20%); }
-
 .text-on-pastel-yellow { color: hsl(45 100% 20%); }
-.dark .text-on-pastel-yellow { color: hsl(45 100% 20%); }
-
 .text-on-pastel-purple { color: hsl(260 100% 25%); }
-.dark .text-on-pastel-purple { color: hsl(260 100% 25%); }
-
 .text-on-pastel-blue { color: hsl(200 100% 25%); }
-.dark .text-on-pastel-blue { color: hsl(200 100% 25%); }
-
 .text-on-pastel-orange { color: hsl(30 100% 25%); }
-.dark .text-on-pastel-orange { color: hsl(30 100% 25%); }
-
 .text-on-pastel-gray { color: hsl(210 20% 15%); }
-.dark .text-on-pastel-gray { color: hsl(210 20% 15%); }
-
 .text-on-pastel-teal { color: hsl(180 45% 20%); }
-.dark .text-on-pastel-teal { color: hsl(180 45% 20%); }
-
 .text-on-pastel-lime { color: hsl(90 70% 20%); }
-.dark .text-on-pastel-lime { color: hsl(90 70% 20%); }
-
 .text-on-pastel-rose { color: hsl(330 80% 25%); }
-.dark .text-on-pastel-rose { color: hsl(330 80% 25%); }
+
+/* For dark theme pastels, also use dark text for contrast if pastels are light enough */
+/* If dark theme pastels become very dark, these might need to be light text */
+.dark .text-on-pastel-pink { color: hsl(350 100% 15%); }
+.dark .text-on-pastel-green { color: hsl(145 60% 15%); }
+.dark .text-on-pastel-yellow { color: hsl(45 100% 15%); }
+.dark .text-on-pastel-purple { color: hsl(260 100% 20%); }
+.dark .text-on-pastel-blue { color: hsl(200 100% 20%); }
+.dark .text-on-pastel-orange { color: hsl(30 100% 20%); }
+.dark .text-on-pastel-gray { color: hsl(210 20% 10%); }
+.dark .text-on-pastel-teal { color: hsl(180 45% 15%); }
+.dark .text-on-pastel-lime { color: hsl(90 70% 15%); }
+.dark .text-on-pastel-rose { color: hsl(330 80% 20%); }
 
 
 /* Ensure buttons on colored backgrounds have good contrast */
 .btn-on-pastel {
-  @apply hover:bg-black/10 dark:hover:bg-black/10; /* Ensure hover is visible on light pastels */
+  @apply hover:bg-black/10 dark:hover:bg-black/10;
 }
 .btn-on-pastel-destructive {
-   @apply hover:bg-black/10 dark:hover:bg-black/10; /* Ensure hover is visible on light pastels */
+   @apply hover:bg-black/10 dark:hover:bg-black/10;
 }
+
+    
