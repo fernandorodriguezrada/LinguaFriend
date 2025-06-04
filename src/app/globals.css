@@ -110,16 +110,16 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* Dark theme pastel colors - Adjusted for visibility and lighter feel */
-    --pastel-pink: 350 70% 70%; /* Verb - Lighter */
-    --pastel-green: 145 50% 72%; /* Noun - Lighter */
-    --pastel-yellow: 45 80% 75%; /* Adjective - Lighter */
-    --pastel-purple: 260 70% 75%; /* Adverb - Lighter */
-    --pastel-blue: 200 70% 72%; /* Pronoun - Lighter */
-    --pastel-orange: 30 70% 70%; /* Preposition - Lighter */
-    --pastel-gray: 210 20% 70%;  /* Conjunction - Lighter */
-    --pastel-teal: 180 40% 70%;   /* Determiner - Lighter */
-    --pastel-lime: 90 50% 70%; /* Interjection - Lighter */
-    --pastel-rose: 330 60% 80%; /* Contraction - Lighter */
+    --pastel-pink: 350 70% 70%; 
+    --pastel-green: 145 50% 72%;
+    --pastel-yellow: 45 80% 75%; 
+    --pastel-purple: 260 70% 75%;
+    --pastel-blue: 200 70% 72%; 
+    --pastel-orange: 30 70% 70%;
+    --pastel-gray: 210 20% 70%; 
+    --pastel-teal: 180 40% 70%;  
+    --pastel-lime: 90 50% 70%; 
+    --pastel-rose: 330 60% 80%; 
   }
 }
 
@@ -158,41 +158,42 @@
 .bg-pastel-rose { background-color: hsl(var(--pastel-rose)); }
 
 /* Text colors for contrast on pastel backgrounds */
-.text-on-pastel-pink { color: hsl(350 100% 20%); } /* Darker pink/maroon */
-.dark .text-on-pastel-pink { color: hsl(350 100% 90%); } /* Lighter pink for dark mode */
+.text-on-pastel-pink { color: hsl(350 100% 20%); } 
+.dark .text-on-pastel-pink { color: hsl(350 100% 20%); }
 
-.text-on-pastel-green { color: hsl(145 60% 20%); } /* Darker green */
-.dark .text-on-pastel-green { color: hsl(145 60% 90%); } /* Lighter green for dark mode */
+.text-on-pastel-green { color: hsl(145 60% 20%); }
+.dark .text-on-pastel-green { color: hsl(145 60% 20%); }
 
-.text-on-pastel-yellow { color: hsl(45 100% 20%); } /* Darker yellow/brown */
-.dark .text-on-pastel-yellow { color: hsl(45 100% 85%); } /* Lighter yellow for dark mode */
+.text-on-pastel-yellow { color: hsl(45 100% 20%); }
+.dark .text-on-pastel-yellow { color: hsl(45 100% 20%); }
 
-.text-on-pastel-purple { color: hsl(260 100% 25%); } /* Darker purple */
-.dark .text-on-pastel-purple { color: hsl(260 100% 92%); } /* Lighter purple for dark mode */
+.text-on-pastel-purple { color: hsl(260 100% 25%); }
+.dark .text-on-pastel-purple { color: hsl(260 100% 25%); }
 
-.text-on-pastel-blue { color: hsl(200 100% 25%); } /* Darker blue */
-.dark .text-on-pastel-blue { color: hsl(200 100% 90%); } /* Lighter blue for dark mode */
+.text-on-pastel-blue { color: hsl(200 100% 25%); }
+.dark .text-on-pastel-blue { color: hsl(200 100% 25%); }
 
-.text-on-pastel-orange { color: hsl(30 100% 25%); } /* Darker orange */
-.dark .text-on-pastel-orange { color: hsl(30 100% 90%); } /* Lighter orange for dark mode */
+.text-on-pastel-orange { color: hsl(30 100% 25%); }
+.dark .text-on-pastel-orange { color: hsl(30 100% 25%); }
 
-.text-on-pastel-gray { color: hsl(210 20% 15%); } /* Darker gray */
-.dark .text-on-pastel-gray { color: hsl(210 20% 95%); } /* Very light gray for dark mode */
+.text-on-pastel-gray { color: hsl(210 20% 15%); }
+.dark .text-on-pastel-gray { color: hsl(210 20% 15%); }
 
-.text-on-pastel-teal { color: hsl(180 45% 20%); } /* Darker teal */
-.dark .text-on-pastel-teal { color: hsl(180 45% 90%); } /* Lighter teal for dark mode */
+.text-on-pastel-teal { color: hsl(180 45% 20%); }
+.dark .text-on-pastel-teal { color: hsl(180 45% 20%); }
 
-.text-on-pastel-lime { color: hsl(90 70% 20%); } /* Darker lime */
-.dark .text-on-pastel-lime { color: hsl(90 70% 90%); } /* Lighter lime for dark mode */
+.text-on-pastel-lime { color: hsl(90 70% 20%); }
+.dark .text-on-pastel-lime { color: hsl(90 70% 20%); }
 
-.text-on-pastel-rose { color: hsl(330 80% 25%); } /* Darker rose */
-.dark .text-on-pastel-rose { color: hsl(330 80% 92%); } /* Lighter rose for dark mode */
+.text-on-pastel-rose { color: hsl(330 80% 25%); }
+.dark .text-on-pastel-rose { color: hsl(330 80% 25%); }
 
 
 /* Ensure buttons on colored backgrounds have good contrast */
 .btn-on-pastel {
-  @apply hover:bg-black/10 dark:hover:bg-white/10;
+  @apply hover:bg-black/10 dark:hover:bg-black/10; /* Ensure hover is visible on light pastels */
 }
 .btn-on-pastel-destructive {
-   @apply hover:bg-black/10 dark:hover:bg-white/10;
+   @apply hover:bg-black/10 dark:hover:bg-black/10; /* Ensure hover is visible on light pastels */
 }
+
