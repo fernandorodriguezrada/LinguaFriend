@@ -7,6 +7,7 @@ import { useActionState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator'; // Import Separator
 import { SendHorizonal, Loader2, HistoryIcon } from 'lucide-react';
 import type { ActionState } from '@/app/actions';
 import type { FeatureToggleState } from '@/lib/types';
@@ -61,17 +62,13 @@ export function SentenceInputForm({
           title: "Análisis Completo",
           description: "La oración ha sido procesada.",
         });
-        // formRef.current?.reset(); // Keep the sentence for potential history saving context
-        // setInputValue(''); // Keep input value in case user wants to re-submit or copy
       }
     }
   }, [state, onAnalysisResult, toast]);
 
   const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let value = e.target.value;
-    // Remove multiple spaces
     value = value.replace(/\s\s+/g, ' ');
-    // Capitalize first letter only if field is not empty and not just a space
     if (value.length > 0 && value.trim().length > 0 && value === value.trimStart()) {
         if (value === value.trim() || value.indexOf(' ') === -1 || value.indexOf(' ') > 0 ) {
              value = value.charAt(0).toUpperCase() + value.slice(1);
@@ -87,7 +84,6 @@ export function SentenceInputForm({
         const formData = new FormData(formRef.current);
         formData.set('eli5Mode', currentFeatureToggles.eli5Mode ? 'on' : 'off');
         formData.set('showImprovementSuggestions', currentFeatureToggles.showImprovementSuggestions ? 'on' : 'off');
-        // Trigger submit
         const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
         formRef.current.dispatchEvent(submitEvent);
       }
@@ -102,7 +98,6 @@ export function SentenceInputForm({
     if (!formData.has('showImprovementSuggestions')) {
         formData.append('showImprovementSuggestions', currentFeatureToggles.showImprovementSuggestions ? 'on' : 'off');
     }
-    // The formAction will be called with this formData by react-dom
   };
 
 
@@ -125,14 +120,22 @@ export function SentenceInputForm({
         <input type="hidden" name="eli5Mode" value={currentFeatureToggles.eli5Mode ? 'on' : 'off'} />
         <input type="hidden" name="showImprovementSuggestions" value={currentFeatureToggles.showImprovementSuggestions ? 'on' : 'off'} />
       </div>
-      <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-3">
-        <SubmitButton />
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center w-full gap-3">
+        <SubmitButton /> {/* Will be on the left on sm screens */}
+        
+        {/* Separator container, visible on sm screens and up, takes middle space */}
+        <div className="hidden sm:flex flex-1 justify-center items-center px-1">
+          <Separator orientation="vertical" className="h-8" />
+        </div>
+
+        {/* History button, will be on the right on sm screens */}
         <Button
             type="button"
             variant="outline"
             size="icon"
             onClick={onOpenHistory}
             aria-label="Ver historial de análisis"
+            className="w-full sm:w-auto" // Full width on mobile (stacked), auto on sm
         >
           <HistoryIcon className="h-4 w-4" />
         </Button>
