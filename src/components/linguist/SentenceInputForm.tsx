@@ -7,7 +7,7 @@ import { useActionState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator'; // Import Separator
+import { Separator } from '@/components/ui/separator';
 import { SendHorizonal, Loader2, HistoryIcon } from 'lucide-react';
 import type { ActionState } from '@/app/actions';
 import type { FeatureToggleState } from '@/lib/types';
@@ -25,7 +25,7 @@ interface SentenceInputFormProps {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="w-full sm:w-auto flex-grow sm:flex-grow-0">
+    <Button type="submit" disabled={pending} className="w-full sm:w-auto flex-grow sm:flex-grow-0 sm:shrink-0">
       {pending ? (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       ) : (
@@ -121,21 +121,19 @@ export function SentenceInputForm({
         <input type="hidden" name="showImprovementSuggestions" value={currentFeatureToggles.showImprovementSuggestions ? 'on' : 'off'} />
       </div>
       <div className="flex flex-col-reverse sm:flex-row sm:items-center w-full gap-3">
-        <SubmitButton /> {/* Will be on the left on sm screens */}
+        <SubmitButton />
         
-        {/* Separator container, visible on sm screens and up, takes middle space */}
         <div className="hidden sm:flex flex-1 justify-center items-center px-1">
           <Separator orientation="vertical" className="h-8" />
         </div>
 
-        {/* History button, will be on the right on sm screens */}
         <Button
             type="button"
             variant="outline"
             size="icon"
             onClick={onOpenHistory}
             aria-label="Ver historial de análisis"
-            className="w-full sm:w-auto" // Full width on mobile (stacked), auto on sm
+            className="w-full sm:shrink-0"
         >
           <HistoryIcon className="h-4 w-4" />
         </Button>
