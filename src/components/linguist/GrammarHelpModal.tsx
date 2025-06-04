@@ -43,16 +43,15 @@ export function GrammarHelpModal({ isOpen, onClose, terms }: GrammarHelpModalPro
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg md:max-w-xl max-h-[85vh] flex flex-col">
+      <DialogContent className="sm:max-w-lg md:max-w-xl h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="font-headline text-xl">Guía de Términos Gramaticales</DialogTitle>
           <DialogDescription>
             Definiciones y ejemplos de los roles gramaticales usados en el análisis.
           </DialogDescription>
         </DialogHeader>
-        {/* Mimicking HistoryModal's ScrollArea classes and inner div padding */}
         <ScrollArea className="flex-grow min-h-0 pr-6 -mr-6 mb-2">
-          <div className="space-y-3 p-1"> {/* Adjusted padding to p-1 like HistoryModal */}
+          <div className="space-y-3 p-1">
             {terms.map(term => {
               const contrastClass = getContrastTextClass(term.identifier);
               return (
