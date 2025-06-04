@@ -126,7 +126,7 @@ export function SentenceGroupsDisplay({
                             size="icon"
                             className={cn(
                                 "p-1.5 h-auto w-auto",
-                                isDefaultColor ? "text-foreground/70 hover:text-foreground" : `${contrastTextClass} btn-on-pastel`
+                                isDefaultColor ? "text-foreground/70 hover:text-foreground hover:bg-muted/50" : `${contrastTextClass} btn-on-pastel`
                             )}
                             onClick={(e) => { e.stopPropagation(); handleOpenEditDialog(group); }}
                             aria-label={`Editar grupo ${group.name}`}
@@ -138,7 +138,7 @@ export function SentenceGroupsDisplay({
                           size="icon"
                            className={cn(
                                 "p-1.5 h-auto w-auto",
-                                isDefaultColor ? "text-destructive hover:text-destructive/80 hover:bg-destructive/10" : `${contrastTextClass} btn-on-pastel-destructive`
+                                isDefaultColor ? "text-foreground/70 hover:text-foreground hover:bg-muted/50" : `${contrastTextClass} btn-on-pastel-destructive`
                             )}
                           onClick={(e) => { e.stopPropagation(); onDeleteGroup(group.id); }}
                           aria-label={`Eliminar grupo ${group.name}`}
