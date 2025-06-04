@@ -51,17 +51,17 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Lighter Pastel colors for grammar highlighting - Light Mode */
-    --pastel-pink: 350 100% 85%;   /* Verb - Lighter */
-    --pastel-green: 145 60% 80%;  /* Noun - Lighter */
-    --pastel-yellow: 45 100% 80%;  /* Adjective - Lighter */
-    --pastel-purple: 260 100% 88%; /* Adverb - Lighter */
-    --pastel-blue: 200 100% 87%;   /* Pronoun - Lighter */
-    --pastel-orange: 30 100% 85%;  /* Preposition - Lighter */
-    --pastel-gray: 210 20% 80%;   /* Conjunction - Lighter */
-    --pastel-teal: 180 45% 82%;   /* Determiner - Lighter */
-    --pastel-lime: 90 70% 80%;    /* Interjection - Lighter */
-    --pastel-rose: 330 80% 88%;   /* Contraction - Lighter */
+    /* Adjusted Lighter Pastel colors for grammar highlighting - Light Mode */
+    --pastel-pink: 350 100% 78%;   /* Verb - Adjusted */
+    --pastel-green: 145 60% 75%;  /* Noun - Adjusted */
+    --pastel-yellow: 45 100% 78%;  /* Adjective - Adjusted */
+    --pastel-purple: 260 100% 80%; /* Adverb - Adjusted */
+    --pastel-blue: 200 100% 80%;   /* Pronoun - Adjusted */
+    --pastel-orange: 30 100% 78%;  /* Preposition - Adjusted */
+    --pastel-gray: 210 20% 75%;   /* Conjunction - Adjusted */
+    --pastel-teal: 180 45% 77%;    /* Determiner - Adjusted */
+    --pastel-lime: 90 70% 78%;    /* Interjection - Adjusted */
+    --pastel-rose: 330 80% 80%;   /* Contraction - Adjusted */
   }
 
   .dark {
@@ -196,4 +196,3 @@
 .btn-on-pastel-destructive {
    @apply hover:bg-black/10 dark:hover:bg-black/10; /* Ensure hover is visible on light pastels */
 }
-
