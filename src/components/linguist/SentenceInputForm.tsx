@@ -27,9 +27,9 @@ function SubmitButton() {
   return (
     <Button type="submit" disabled={pending} className="w-full sm:w-auto sm:flex-none">
       {pending ? (
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        <Loader2 className="h-4 w-4 animate-spin" />
       ) : (
-        <SendHorizonal className="mr-2 h-4 w-4" />
+        <SendHorizonal className="h-4 w-4" />
       )}
       Analizar Oración
     </Button>
@@ -133,7 +133,7 @@ export function SentenceInputForm({
             size="icon"
             onClick={onOpenHistory}
             aria-label="Ver historial de análisis"
-            className="w-full sm:flex-none"
+            className="w-full sm:w-10 sm:shrink-0"
         >
           <HistoryIcon className="h-4 w-4" />
         </Button>
