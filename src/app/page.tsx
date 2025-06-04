@@ -100,7 +100,7 @@ export default function LinguaFriendPage() {
         let finalTranslatedSentence: string | undefined = undefined;
         if (analysisDataWithWordIds && result.originalSentence) {
           try {
-            const translationAPIResult = await translateSentence({ sentence: result.originalSentence });
+            const translationAPIResult = await translateSentence({ sentence: result.originalSentence, targetLanguage: 'Spanish' });
             finalTranslatedSentence = translationAPIResult.translatedSentence;
             setLoadedTranslation(finalTranslatedSentence);
           } catch (e) {
