@@ -7,7 +7,7 @@ import { useActionState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { SendHorizonal, Loader2, HistoryIcon } from 'lucide-react'; // Added HistoryIcon
+import { SendHorizonal, Loader2, HistoryIcon } from 'lucide-react';
 import type { ActionState } from '@/app/actions';
 import type { FeatureToggleState } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -18,7 +18,7 @@ interface SentenceInputFormProps {
   initialState: ActionState;
   serverAction: (prevState: ActionState | undefined, formData: FormData) => Promise<ActionState>;
   currentFeatureToggles: FeatureToggleState;
-  onOpenHistory: () => void; // New prop to open history modal
+  onOpenHistory: () => void;
 }
 
 function SubmitButton() {
@@ -129,12 +129,12 @@ export function SentenceInputForm({
         <Button 
             type="button" 
             variant="outline" 
+            size="icon"
             onClick={onOpenHistory} 
-            className="w-full sm:w-auto order-last sm:order-first"
+            className="order-last sm:order-first"
             aria-label="Ver historial de análisis"
         >
-          <HistoryIcon className="mr-2 h-4 w-4" />
-          Historial
+          <HistoryIcon className="h-4 w-4" />
         </Button>
         <SubmitButton />
       </div>
