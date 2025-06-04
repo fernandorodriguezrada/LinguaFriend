@@ -57,8 +57,8 @@ export function CreateGroupDialog({ isOpen, onClose, onCreateGroup }: CreateGrou
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
             <Label className="text-right pt-2">Color</Label>
-            <ScrollArea className="col-span-3 h-[100px] rounded-md border p-2">
-              <div className="grid grid-cols-4 gap-2">
+            <ScrollArea className="col-span-3 h-[100px] rounded-md border">
+              <div className="grid grid-cols-4 gap-2 p-2"> {/* Added p-2 here */}
                 {availablePastelColors.map((color: PastelColor) => (
                   <Button
                     key={color.identifier}
