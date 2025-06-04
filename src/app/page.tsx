@@ -7,7 +7,7 @@ import { SentenceInputForm } from '@/components/linguist/SentenceInputForm';
 import { AnalysisDisplay } from '@/components/linguist/AnalysisDisplay';
 import { TranslationDisplay } from '@/components/linguist/TranslationDisplay';
 import { FeatureToggleControls } from '@/components/linguist/FeatureToggleControls';
-import type { FeatureToggleState, AnalysisResult, ImprovementResult, AnalysisHistoryItem, SentenceGroup } from '@/lib/types'; // Removed WordAnalysisDetail
+import type { FeatureToggleState, AnalysisResult, ImprovementResult, AnalysisHistoryItem, SentenceGroup } from '@/lib/types';
 import { CommonMistakesDisplay } from '@/components/linguist/CommonMistakesDisplay';
 import { HistoryModal } from '@/components/history/HistoryModal';
 import { SentenceGroupsDisplay } from '@/components/groups/SentenceGroupsDisplay';
@@ -47,7 +47,7 @@ export default function LinguaFriendPage() {
     addHistoryItem, 
     deleteHistoryItem, 
     clearHistory,
-    getHistoryItemById // Keep if needed elsewhere, not directly used in this refactor
+    getHistoryItemById 
   } = useAnalysisHistory();
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
 
@@ -55,9 +55,8 @@ export default function LinguaFriendPage() {
     groups: sentenceGroups, 
     createGroup, 
     deleteGroup, 
-    addHistoryItemsToGroup, // Updated from addWordsToGroup
-    removeHistoryItemFromGroup, // Updated from removeWordFromGroup
-    // getGroupById // Keep if needed
+    addHistoryItemsToGroup, 
+    removeHistoryItemFromGroup, 
   } = useSentenceGroups();
 
   const handleAnalysisFormSubmit = useCallback((result: ActionState) => {
@@ -68,7 +67,6 @@ export default function LinguaFriendPage() {
         setAnalysisResult(null);
         setImprovementResult(null);
       } else {
-        // Ensure wordAnalysis items have unique IDs for selection
         const analysisDataWithWordIds = result.data ? {
           ...result.data,
           wordAnalysis: result.data.wordAnalysis.map(wa => ({ ...wa, id: wa.id || uuidv4() }))
@@ -80,7 +78,7 @@ export default function LinguaFriendPage() {
 
         if (analysisDataWithWordIds && result.originalSentence) {
           const historyEntry: AnalysisHistoryItem = {
-            id: uuidv4(), // Use uuid for more robust unique IDs
+            id: uuidv4(), 
             originalSentence: result.originalSentence,
             analysis: analysisDataWithWordIds,
             improvement: result.improvementData,
@@ -93,10 +91,10 @@ export default function LinguaFriendPage() {
   }, [startTransition, addHistoryItem]);
 
   useEffect(() => {
-    if (resultsContainerRef.current && !isPending && !error && (analysisResult || improvementResult?.hasImprovements || sentenceGroups.length > 0)) {
+    if (resultsContainerRef.current && !isPending && (analysisResult || improvementResult?.hasImprovements || currentSentence)) {
       resultsContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, [analysisResult, improvementResult, sentenceGroups, error, isPending]);
+  }, [analysisResult, improvementResult, currentSentence, isPending]);
 
   const handleCreateSentenceGroup = async (name: string): Promise<SentenceGroup | null> => {
     const newGroup = createGroup(name);
@@ -104,16 +102,14 @@ export default function LinguaFriendPage() {
   };
 
   const handleViewHistoryItemInGroup = (item: AnalysisHistoryItem) => {
-    // This function could open the HistoryModal and set its selectedHistoryItemDetail
-    // Or display the item in another way. For now, let's make it open HistoryModal
-    // and show the specific item.
-    // To do this properly, HistoryModal might need a way to be opened to a specific item.
-    // For simplicity now, we'll just log, or you can implement the modal opening.
-    console.log("Viewing history item from group:", item);
-    // A more complex implementation would set state to open HistoryModal with this item.
-    // For example:
-    // setSelectedHistoryItemForModal(item); // a new state
-    // setIsHistoryModalOpen(true);
+    startTransition(() => {
+      setCurrentSentence(item.originalSentence);
+      setAnalysisResult(item.analysis);
+      setImprovementResult(item.improvement || null);
+      setError(null);
+      setIsHistoryModalOpen(false); // Close history modal if open
+      // Scroll to results should be handled by the useEffect watching analysisResult
+    });
   };
 
 
@@ -157,17 +153,16 @@ export default function LinguaFriendPage() {
             
             {!isPending && !error && (
               <div ref={resultsContainerRef}>
-                {/* Display Sentence Groups first */}
                  <SentenceGroupsDisplay 
                     groups={sentenceGroups}
                     onCreateGroup={handleCreateSentenceGroup}
                     onDeleteGroup={deleteGroup}
                     onRemoveHistoryItemFromGroup={removeHistoryItemFromGroup}
-                    onViewHistoryItemDetails={handleViewHistoryItemInGroup} // Optional: pass if you want view details from group
+                    onViewHistoryItemDetails={handleViewHistoryItemInGroup} 
                 />
 
                 {(analysisResult || improvementResult?.hasImprovements || currentSentence ) ? (
-                  <div className="space-y-8 mt-8"> {/* Added mt-8 for spacing */}
+                  <div className="space-y-8 mt-8"> 
                     {currentSentence && <TranslationDisplay originalSentence={currentSentence} />}
                     {improvementResult && improvementResult.hasImprovements && (
                       <CommonMistakesDisplay improvement={improvementResult} />
@@ -180,7 +175,7 @@ export default function LinguaFriendPage() {
                     )}
                   </div>
                 ) : (
-                  !sentenceGroups.length && ( // Only show welcome if no groups AND no current analysis
+                  !sentenceGroups.length && ( 
                     <Card className="shadow-md mt-8">
                         <CardContent className="p-10 text-center">
                             <h2 className="text-2xl font-headline text-foreground/80">Bienvenido a LinguaFriend</h2>
@@ -215,7 +210,11 @@ export default function LinguaFriendPage() {
         featureToggles={featureToggles}
         sentenceGroups={sentenceGroups}
         onCreateGroup={handleCreateSentenceGroup}
-        onAddHistoryItemsToGroup={addHistoryItemsToGroup} // Updated prop
+        onAddHistoryItemsToGroup={addHistoryItemsToGroup} 
+        onViewDetails={(item) => { // Add this prop to allow HistoryModal to load item directly
+            handleViewHistoryItemInGroup(item);
+            setIsHistoryModalOpen(false); // Close modal after loading
+        }}
       />
     </div>
   );

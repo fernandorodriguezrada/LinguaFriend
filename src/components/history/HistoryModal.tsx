@@ -10,7 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { AnalysisDisplay } from '@/components/linguist/AnalysisDisplay';
 import { CommonMistakesDisplay } from '@/components/linguist/CommonMistakesDisplay';
-import type { AnalysisHistoryItem, FeatureToggleState, SentenceGroup } from '@/lib/types'; // Removed WordAnalysisDetail
+import type { AnalysisHistoryItem, FeatureToggleState, SentenceGroup } from '@/lib/types';
 import { Trash2, PlusCircle, Eye } from 'lucide-react';
 import { AddToGroupDialog } from '@/components/groups/AddToGroupDialog';
 
@@ -23,7 +23,8 @@ interface HistoryModalProps {
   featureToggles: FeatureToggleState;
   sentenceGroups: SentenceGroup[];
   onCreateGroup: (name: string) => Promise<SentenceGroup | null>;
-  onAddHistoryItemsToGroup: (groupId: string, items: AnalysisHistoryItem[]) => void; // Changed prop name and signature
+  onAddHistoryItemsToGroup: (groupId: string, items: AnalysisHistoryItem[]) => void;
+  onViewDetails: (item: AnalysisHistoryItem) => void; // New prop
 }
 
 export function HistoryModal({
@@ -36,14 +37,18 @@ export function HistoryModal({
   sentenceGroups,
   onCreateGroup,
   onAddHistoryItemsToGroup,
+  onViewDetails, // New prop
 }: HistoryModalProps) {
   const [selectedHistoryItemDetail, setSelectedHistoryItemDetail] = useState<AnalysisHistoryItem | null>(null);
   const [selectedHistoryItemIds, setSelectedHistoryItemIds] = useState<string[]>([]);
   const [isAddToGroupDialogOpen, setIsAddToGroupDialogOpen] = useState(false);
 
-  const handleViewDetails = (item: AnalysisHistoryItem) => {
+  const handleViewDetailsInModal = (item: AnalysisHistoryItem) => {
     setSelectedHistoryItemDetail(item);
-    // Do not reset selectedHistoryItemIds here, user might want to add selected items while viewing one
+  };
+
+  const handleViewDetailsOnPage = (item: AnalysisHistoryItem) => {
+    onViewDetails(item); // This will close the modal and load on main page
   };
 
   const handleBackToList = () => {
@@ -72,7 +77,7 @@ export function HistoryModal({
       onAddHistoryItemsToGroup(groupId, itemsToAdd);
     }
     setIsAddToGroupDialogOpen(false);
-    setSelectedHistoryItemIds([]); // Clear selection after adding
+    setSelectedHistoryItemIds([]); 
   };
   
   const handleCreateAndAdd = async (groupName: string) => {
@@ -88,7 +93,7 @@ export function HistoryModal({
   const handleModalClose = () => {
     onClose();
     handleBackToList();
-    setSelectedHistoryItemIds([]); // Clear selection on modal close
+    setSelectedHistoryItemIds([]); 
   };
 
   if (!isOpen) return null;
@@ -97,9 +102,9 @@ export function HistoryModal({
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleModalClose(); }}>
       <DialogContent className="max-w-3xl h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>{selectedHistoryItemDetail ? `Detalles de "${selectedHistoryItemDetail.originalSentence.substring(0,30)}..."` : "Historial de Análisis"}</DialogTitle>
+          <DialogTitle>{selectedHistoryItemDetail ? `Detalles de "${selectedHistoryItemDetail.originalSentence.substring(0,30)}..." (En Modal)` : "Historial de Análisis"}</DialogTitle>
           <DialogDescription>
-            {selectedHistoryItemDetail ? "Revisa el análisis detallado." : "Selecciona análisis para agrupar o revisa detalles."}
+            {selectedHistoryItemDetail ? "Revisa el análisis detallado o cárgalo en la página principal." : "Selecciona análisis para agrupar o revisa detalles."}
           </DialogDescription>
         </DialogHeader>
 
@@ -112,7 +117,6 @@ export function HistoryModal({
               <AnalysisDisplay
                 analysis={selectedHistoryItemDetail.analysis}
                 featureToggles={featureToggles}
-                // Removed selectable mode props
               />
             </div>
           ) : (
@@ -140,8 +144,11 @@ export function HistoryModal({
                       </div>
                     </CardHeader>
                     <CardContent className="flex justify-end gap-2">
-                      <Button variant="outline" size="sm" onClick={() => handleViewDetails(item)}>
-                        <Eye className="mr-2 h-4 w-4" /> Ver Detalles
+                       <Button variant="secondary" size="sm" onClick={() => handleViewDetailsOnPage(item)}>
+                        <Eye className="mr-2 h-4 w-4" /> Ver en Página
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleViewDetailsInModal(item)}>
+                        <Eye className="mr-2 h-4 w-4" /> Ver Detalles (Modal)
                       </Button>
                       <Button variant="destructive" size="sm" onClick={() => onDeleteItem(item.id)}>
                         <Trash2 className="mr-2 h-4 w-4" /> Eliminar
@@ -156,7 +163,10 @@ export function HistoryModal({
 
         <DialogFooter className="mt-auto pt-4 border-t">
           {selectedHistoryItemDetail ? (
-            <Button variant="outline" onClick={handleBackToList}>Volver al Historial</Button>
+            <>
+             <Button variant="default" onClick={() => handleViewDetailsOnPage(selectedHistoryItemDetail)}>Cargar en Página Principal</Button>
+             <Button variant="outline" onClick={handleBackToList}>Volver al Historial</Button>
+            </>
           ) : (
             <>
               <Button variant="ghost" onClick={handleModalClose}>Cerrar</Button>
@@ -182,8 +192,8 @@ export function HistoryModal({
           isOpen={isAddToGroupDialogOpen}
           onClose={() => setIsAddToGroupDialogOpen(false)}
           groups={sentenceGroups}
-          onCreateGroup={handleCreateAndAdd} // This function now handles adding items
-          onSelectGroup={handleConfirmAddToGroup} // This function also handles adding items
+          onCreateGroup={handleCreateAndAdd} 
+          onSelectGroup={handleConfirmAddToGroup} 
           itemCount={selectedHistoryItemIds.length}
         />
       )}
