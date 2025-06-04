@@ -14,6 +14,7 @@ import { SentenceGroupsDisplay } from '@/components/groups/SentenceGroupsDisplay
 import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
 import { useSentenceGroups } from '@/hooks/useSentenceGroups';
 import { handleAnalyzeSentence, type ActionState } from './actions';
+import { translateSentence } from '@/ai/flows/translate-sentence-flow'; // Import translateSentence
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { v4 as uuidv4 } from 'uuid';
@@ -37,6 +38,7 @@ export default function LinguaFriendPage() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult>(null);
   const [improvementResult, setImprovementResult] = useState<ImprovementResult>(null);
   const [currentSentence, setCurrentSentence] = useState<string>('');
+  const [loadedTranslation, setLoadedTranslation] = useState<string | undefined>(undefined); // For providing saved translations
   const [error, setError] = useState<string | null>(null);
   const [featureToggles, setFeatureToggles] = useState<FeatureToggleState>(initialFeatureToggles);
   const [isPending, startTransition] = useTransition();
@@ -62,13 +64,14 @@ export default function LinguaFriendPage() {
     removeHistoryItemFromGroup,
   } = useSentenceGroups();
 
-  const handleAnalysisFormSubmit = useCallback((result: ActionState) => {
-    startTransition(() => {
+  const handleAnalysisFormSubmit = useCallback(async (result: ActionState) => {
+    startTransition(async () => {
       setCurrentSentence(result.originalSentence || '');
       if (result.error) {
         setError(result.error);
         setAnalysisResult(null);
         setImprovementResult(null);
+        setLoadedTranslation(undefined);
       } else {
         const analysisDataWithWordIds = result.data ? {
           ...result.data,
@@ -79,15 +82,28 @@ export default function LinguaFriendPage() {
         setImprovementResult(result.improvementData);
         setError(null);
 
+        let finalTranslatedSentence: string | undefined = undefined;
         if (analysisDataWithWordIds && result.originalSentence) {
+          try {
+            const translationAPIResult = await translateSentence({ sentence: result.originalSentence });
+            finalTranslatedSentence = translationAPIResult.translatedSentence;
+            setLoadedTranslation(finalTranslatedSentence); // Set for immediate display
+          } catch (e) {
+            console.error("Failed to fetch translation for history:", e);
+            setLoadedTranslation(undefined); // Clear if fetch fails during new analysis
+          }
+
           const historyEntry: AnalysisHistoryItem = {
             id: uuidv4(),
             originalSentence: result.originalSentence,
             analysis: analysisDataWithWordIds,
             improvement: result.improvementData,
             timestamp: Date.now(),
+            translatedSentence: finalTranslatedSentence, // Save translation
           };
           addHistoryItem(historyEntry);
+        } else {
+           setLoadedTranslation(undefined); // No analysis, no translation
         }
       }
     });
@@ -96,11 +112,8 @@ export default function LinguaFriendPage() {
   useEffect(() => {
     if (!isPending) {
       if (translationDisplayRef.current && currentSentence) {
-        // Prioritize scrolling to translation display if it's available and we have a sentence
         translationDisplayRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else if (resultsContainerRef.current && (analysisResult || improvementResult?.hasImprovements)) {
-        // Fallback scroll to the general results container if translation isn't the target
-        // or if there's no currentSentence but there are other results.
         resultsContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
@@ -121,6 +134,7 @@ export default function LinguaFriendPage() {
       setCurrentSentence(item.originalSentence);
       setAnalysisResult(item.analysis);
       setImprovementResult(item.improvement || null);
+      setLoadedTranslation(item.translatedSentence); // Load saved translation
       setError(null);
       setIsHistoryModalOpen(false); 
     });
@@ -178,7 +192,13 @@ export default function LinguaFriendPage() {
 
                 {(analysisResult || improvementResult?.hasImprovements || currentSentence ) ? (
                   <div className="space-y-8 mt-8">
-                    {currentSentence && <TranslationDisplay ref={translationDisplayRef} originalSentence={currentSentence} />}
+                    {currentSentence && (
+                      <TranslationDisplay 
+                        ref={translationDisplayRef} 
+                        originalSentence={currentSentence} 
+                        loadedTranslation={loadedTranslation} 
+                      />
+                    )}
                     {improvementResult && improvementResult.hasImprovements && (
                       <CommonMistakesDisplay improvement={improvementResult} />
                     )}
@@ -190,7 +210,7 @@ export default function LinguaFriendPage() {
                     )}
                   </div>
                 ) : (
-                  !sentenceGroups.length && ( // Only show welcome if no groups AND no analysis results
+                  !sentenceGroups.length && ( 
                     <Card className="shadow-md mt-8">
                         <CardContent className="p-10 text-center">
                             <h2 className="text-2xl font-headline text-foreground/80">Bienvenido a LinguaFriend</h2>
@@ -226,7 +246,7 @@ export default function LinguaFriendPage() {
         sentenceGroups={sentenceGroups}
         onCreateGroup={handleCreateSentenceGroup} 
         onAddHistoryItemsToGroup={addHistoryItemsToGroup}
-        onViewDetails={handleViewHistoryItemInGroup} // This one now correctly triggers the main page view
+        onViewDetails={handleViewHistoryItemInGroup}
       />
     </div>
   );

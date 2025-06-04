@@ -9,62 +9,66 @@ import { translateSentence, type TranslateSentenceInput } from '@/ai/flows/trans
 
 interface TranslationDisplayProps {
   originalSentence: string;
+  loadedTranslation?: string; // Optional prop for pre-fetched/saved translation
 }
 
 export const TranslationDisplay = React.forwardRef<HTMLDivElement, TranslationDisplayProps>(
-  ({ originalSentence }, ref) => {
+  ({ originalSentence, loadedTranslation }, ref) => {
     const [showTranslation, setShowTranslation] = useState(false);
     const [translatedText, setTranslatedText] = useState('');
     const [isTranslating, setIsTranslating] = useState(false);
     const [translationError, setTranslationError] = useState<string | null>(null);
 
     useEffect(() => {
-      // Reset translation when original sentence changes or showTranslation is toggled off
-      // and fetch new one if toggled on.
       if (!originalSentence) {
         setTranslatedText('');
         setTranslationError(null);
         setIsTranslating(false);
-        setShowTranslation(false); // Ensure it's reset if sentence is cleared
+        // setShowTranslation(false); // Do not automatically hide, let user control
         return;
       }
 
       if (showTranslation) {
-        const performTranslation = async () => {
-          setIsTranslating(true);
+        if (loadedTranslation) {
+          setTranslatedText(loadedTranslation);
+          setIsTranslating(false);
           setTranslationError(null);
-          setTranslatedText('Traduciendo...'); 
-          try {
-            const input: TranslateSentenceInput = { sentence: originalSentence, targetLanguage: 'Spanish' };
-            const result = await translateSentence(input);
-            if (result && result.translatedSentence) {
-              setTranslatedText(result.translatedSentence);
-            } else {
-              setTranslatedText(originalSentence); 
-              setTranslationError('No se pudo obtener la traducción.');
+        } else {
+          const performTranslation = async () => {
+            setIsTranslating(true);
+            setTranslationError(null);
+            setTranslatedText('Traduciendo...'); 
+            try {
+              const input: TranslateSentenceInput = { sentence: originalSentence, targetLanguage: 'Spanish' };
+              const result = await translateSentence(input);
+              if (result && result.translatedSentence) {
+                setTranslatedText(result.translatedSentence);
+              } else {
+                setTranslatedText(originalSentence); // Fallback if translation result is empty
+                setTranslationError('No se pudo obtener la traducción.');
+              }
+            } catch (error) {
+              console.error('Translation error:', error);
+              setTranslatedText(originalSentence); // Fallback on error
+              setTranslationError('Ocurrió un error durante la traducción.');
+            } finally {
+              setIsTranslating(false);
             }
-          } catch (error) {
-            console.error('Translation error:', error);
-            setTranslatedText(originalSentence); 
-            setTranslationError('Ocurrió un error durante la traducción.');
-          } finally {
-            setIsTranslating(false);
-          }
-        };
-        performTranslation();
+          };
+          performTranslation();
+        }
       } else {
         // If not showing translation, display the original sentence.
         setTranslatedText(originalSentence);
-        setTranslationError(null);
+        setTranslationError(null); // Clear any previous error
         setIsTranslating(false); 
       }
-    }, [originalSentence, showTranslation]);
+    }, [originalSentence, showTranslation, loadedTranslation]);
 
     const handleToggleTranslation = () => {
       setShowTranslation(!showTranslation);
     };
 
-    // Do not render the card at all if there is no original sentence
     if (!originalSentence) {
       return null;
     }
@@ -79,9 +83,9 @@ export const TranslationDisplay = React.forwardRef<HTMLDivElement, TranslationDi
           <Button
             variant="outline"
             onClick={handleToggleTranslation}
-            disabled={isTranslating && showTranslation} // Only disable if actively translating *to* Spanish
+            disabled={isTranslating && showTranslation && !loadedTranslation} // Disable only if actively fetching a new translation
           >
-            {isTranslating && showTranslation ? (
+            {isTranslating && showTranslation && !loadedTranslation ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : null}
             {showTranslation ? 'Mostrar Original' : 'Traducir a Español'}
@@ -92,7 +96,7 @@ export const TranslationDisplay = React.forwardRef<HTMLDivElement, TranslationDi
             <p className="text-destructive text-sm mb-2">{translationError}</p>
           )}
           <p className="text-muted-foreground text-lg">
-            {(isTranslating && showTranslation) ? 'Traduciendo...' : translatedText}
+            {(isTranslating && showTranslation && !loadedTranslation) ? 'Traduciendo...' : translatedText}
           </p>
         </CardContent>
       </Card>

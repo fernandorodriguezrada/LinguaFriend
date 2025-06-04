@@ -41,6 +41,7 @@ export interface AnalysisHistoryItem {
   analysis: ExtendedAnalyzeSentenceOutput;
   improvement?: ImprovementResult;
   timestamp: number; // Date.now()
+  translatedSentence?: string; // Added field for saved translation
 }
 
 export interface SentenceGroup {
@@ -72,3 +73,4 @@ export const availablePastelColors: PastelColor[] = [
   { name: 'Lima', identifier: 'lime', bgClass: 'bg-pastel-lime', textClass: 'text-pastel-lime' },
   { name: 'Rosado', identifier: 'rose', bgClass: 'bg-pastel-rose', textClass: 'text-pastel-rose' },
 ];
+
