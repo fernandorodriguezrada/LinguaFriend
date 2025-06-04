@@ -113,7 +113,7 @@ export function GrammarLegend() {
             variant="ghost"
             size="icon"
             onClick={() => setIsHelpModalOpen(true)}
-            className="h-7 w-7 p-0.5 hover:scale-110 transition-transform duration-150 ease-in-out"
+            className="h-7 w-7 p-0.5 hover:bg-transparent hover:scale-110 transition-transform duration-150 ease-in-out"
             aria-label="Ayuda de términos gramaticales"
           >
             <HelpCircle className="h-5 w-5 text-muted-foreground hover:text-primary" />
