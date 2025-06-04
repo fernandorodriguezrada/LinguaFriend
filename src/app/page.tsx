@@ -53,7 +53,7 @@ export default function LinguaFriendPage() {
   const {
     groups: sentenceGroups,
     createGroup,
-    updateGroup, // Added
+    updateGroup,
     deleteGroup,
     addHistoryItemsToGroup,
     removeHistoryItemFromGroup,
@@ -180,7 +180,7 @@ export default function LinguaFriendPage() {
                     )}
                   </div>
                 ) : (
-                  !sentenceGroups.length && (
+                  !sentenceGroups.length && ( // Only show welcome if no groups AND no analysis results
                     <Card className="shadow-md mt-8">
                         <CardContent className="p-10 text-center">
                             <h2 className="text-2xl font-headline text-foreground/80">Bienvenido a LinguaFriend</h2>
@@ -214,11 +214,9 @@ export default function LinguaFriendPage() {
         onClearHistory={clearHistory}
         featureToggles={featureToggles}
         sentenceGroups={sentenceGroups}
-        onCreateGroup={(name: string, colorIdentifier: string) => handleCreateSentenceGroup(name, colorIdentifier).then(() => {})} // Simplified for dialog, actual group creation is above
+        onCreateGroup={handleCreateSentenceGroup} 
         onAddHistoryItemsToGroup={addHistoryItemsToGroup}
-        onViewDetails={(item) => { 
-            handleViewHistoryItemInGroup(item);
-        }}
+        onViewDetails={handleViewHistoryItemInGroup}
       />
     </div>
   );
