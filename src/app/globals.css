@@ -51,17 +51,17 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Pastel colors for grammar highlighting - Light Mode (Darker for better contrast) */
-    --pastel-pink: 350 100% 65%;   /* Verb - Darker for light mode */
-    --pastel-green: 145 55% 50%;  /* Noun - More distinct green, darker */
-    --pastel-yellow: 45 100% 55%;  /* Adjective - Darker yellow */
-    --pastel-purple: 260 100% 70%; /* Adverb - Darker for light mode */
-    --pastel-blue: 200 100% 68%;   /* Pronoun - Darker for light mode */
-    --pastel-orange: 30 100% 65%;  /* Preposition - Darker for light mode */
-    --pastel-gray: 210 15% 50%;   /* Conjunction - Darker for light mode */
-    --pastel-teal: 219 44% 66%;   /* Determiner - New color #809bce */
-    --pastel-lime: 90 60% 60%;    /* Interjection - Darker for light mode */
-    --pastel-rose: 330 70% 65%;   /* Contraction - Darker for light mode */
+    /* Lighter Pastel colors for grammar highlighting - Light Mode */
+    --pastel-pink: 350 100% 85%;   /* Verb - Lighter */
+    --pastel-green: 145 60% 80%;  /* Noun - Lighter */
+    --pastel-yellow: 45 100% 80%;  /* Adjective - Lighter */
+    --pastel-purple: 260 100% 88%; /* Adverb - Lighter */
+    --pastel-blue: 200 100% 87%;   /* Pronoun - Lighter */
+    --pastel-orange: 30 100% 85%;  /* Preposition - Lighter */
+    --pastel-gray: 210 20% 80%;   /* Conjunction - Lighter */
+    --pastel-teal: 180 45% 82%;   /* Determiner - Lighter */
+    --pastel-lime: 90 70% 80%;    /* Interjection - Lighter */
+    --pastel-rose: 330 80% 88%;   /* Contraction - Lighter */
   }
 
   .dark {
@@ -109,17 +109,17 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Dark theme pastel colors - Adjusted for visibility */
-    --pastel-pink: 350 70% 60%; /* Verb */
-    --pastel-green: 145 50% 65%; /* Noun - Adjusted hue */
-    --pastel-yellow: 45 80% 65%; /* Adjective - Adjusted for visibility */
-    --pastel-purple: 260 70% 65%; /* Adverb */
-    --pastel-blue: 200 70% 62%; /* Pronoun */
-    --pastel-orange: 30 70% 60%; /* Preposition */
-    --pastel-gray: 210 25% 85%;  /* Conjunction - Made significantly lighter */
-    --pastel-teal: 219 44% 62%;   /* Determiner - New color for dark mode */
-    --pastel-lime: 90 50% 55%; /* Interjection */
-    --pastel-rose: 330 60% 78%; /* Contraction - New color */
+    /* Dark theme pastel colors - Adjusted for visibility and lighter feel */
+    --pastel-pink: 350 70% 70%; /* Verb - Lighter */
+    --pastel-green: 145 50% 72%; /* Noun - Lighter */
+    --pastel-yellow: 45 80% 75%; /* Adjective - Lighter */
+    --pastel-purple: 260 70% 75%; /* Adverb - Lighter */
+    --pastel-blue: 200 70% 72%; /* Pronoun - Lighter */
+    --pastel-orange: 30 70% 70%; /* Preposition - Lighter */
+    --pastel-gray: 210 20% 70%;  /* Conjunction - Lighter */
+    --pastel-teal: 180 40% 70%;   /* Determiner - Lighter */
+    --pastel-lime: 90 50% 70%; /* Interjection - Lighter */
+    --pastel-rose: 330 60% 80%; /* Contraction - Lighter */
   }
 }
 
@@ -156,3 +156,43 @@
 .bg-pastel-teal { background-color: hsl(var(--pastel-teal)); }
 .bg-pastel-lime { background-color: hsl(var(--pastel-lime)); }
 .bg-pastel-rose { background-color: hsl(var(--pastel-rose)); }
+
+/* Text colors for contrast on pastel backgrounds */
+.text-on-pastel-pink { color: hsl(350 100% 20%); } /* Darker pink/maroon */
+.dark .text-on-pastel-pink { color: hsl(350 100% 90%); } /* Lighter pink for dark mode */
+
+.text-on-pastel-green { color: hsl(145 60% 20%); } /* Darker green */
+.dark .text-on-pastel-green { color: hsl(145 60% 90%); } /* Lighter green for dark mode */
+
+.text-on-pastel-yellow { color: hsl(45 100% 20%); } /* Darker yellow/brown */
+.dark .text-on-pastel-yellow { color: hsl(45 100% 85%); } /* Lighter yellow for dark mode */
+
+.text-on-pastel-purple { color: hsl(260 100% 25%); } /* Darker purple */
+.dark .text-on-pastel-purple { color: hsl(260 100% 92%); } /* Lighter purple for dark mode */
+
+.text-on-pastel-blue { color: hsl(200 100% 25%); } /* Darker blue */
+.dark .text-on-pastel-blue { color: hsl(200 100% 90%); } /* Lighter blue for dark mode */
+
+.text-on-pastel-orange { color: hsl(30 100% 25%); } /* Darker orange */
+.dark .text-on-pastel-orange { color: hsl(30 100% 90%); } /* Lighter orange for dark mode */
+
+.text-on-pastel-gray { color: hsl(210 20% 15%); } /* Darker gray */
+.dark .text-on-pastel-gray { color: hsl(210 20% 95%); } /* Very light gray for dark mode */
+
+.text-on-pastel-teal { color: hsl(180 45% 20%); } /* Darker teal */
+.dark .text-on-pastel-teal { color: hsl(180 45% 90%); } /* Lighter teal for dark mode */
+
+.text-on-pastel-lime { color: hsl(90 70% 20%); } /* Darker lime */
+.dark .text-on-pastel-lime { color: hsl(90 70% 90%); } /* Lighter lime for dark mode */
+
+.text-on-pastel-rose { color: hsl(330 80% 25%); } /* Darker rose */
+.dark .text-on-pastel-rose { color: hsl(330 80% 92%); } /* Lighter rose for dark mode */
+
+
+/* Ensure buttons on colored backgrounds have good contrast */
+.btn-on-pastel {
+  @apply hover:bg-black/10 dark:hover:bg-white/10;
+}
+.btn-on-pastel-destructive {
+   @apply hover:bg-black/10 dark:hover:bg-white/10;
+}
