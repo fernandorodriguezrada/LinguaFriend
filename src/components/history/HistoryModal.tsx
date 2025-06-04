@@ -195,7 +195,7 @@ export function HistoryModal({
           )}
         </ScrollArea>
 
-        <DialogFooter className="mt-auto pt-4 border-t">
+        <DialogFooter className="mt-auto pt-4">
           {selectedHistoryItemDetail ? (
             <>
              <Button variant="default" onClick={() => handleViewDetailsOnPage(selectedHistoryItemDetail)}>Cargar en Página Principal</Button>
