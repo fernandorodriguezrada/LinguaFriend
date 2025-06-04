@@ -118,7 +118,7 @@ export function HistoryModal({
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-grow pr-6 -mr-6 mb-4">
+        <ScrollArea className="flex-grow pr-6 -mr-6 mb-2">
           {selectedHistoryItemDetail ? (
             <div className="space-y-4">
               {selectedHistoryItemDetail.improvement && (
@@ -195,7 +195,7 @@ export function HistoryModal({
           )}
         </ScrollArea>
 
-        <DialogFooter className="mt-auto pt-4">
+        <DialogFooter className="mt-auto pt-2">
           {selectedHistoryItemDetail ? (
             <>
              <Button variant="default" onClick={() => handleViewDetailsOnPage(selectedHistoryItemDetail)}>Cargar en Página Principal</Button>
