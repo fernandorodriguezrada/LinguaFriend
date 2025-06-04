@@ -124,14 +124,19 @@ export default function LinguaFriendPage() {
     if (analysisResult || improvementResult?.hasImprovements || currentSentence) {
         setIsContentScaled(prev => !prev);
         setIsLeftColumnHidden(prev => !prev);
-    } else if (isContentScaled || isLeftColumnHidden) { // Allow exiting focus mode even if content disappeared
+    } else if (isContentScaled || isLeftColumnHidden) { 
         setIsContentScaled(false);
         setIsLeftColumnHidden(false);
     }
   }, [analysisResult, improvementResult, currentSentence, isContentScaled, isLeftColumnHidden]);
 
-  useEffect(() => {
-    if (isContentScaled && isLeftColumnHidden) { 
+ useEffect(() => {
+    const focusModeActive = isContentScaled && isLeftColumnHidden;
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('focusModeStateChange', { detail: { isFocusModeActive: focusModeActive } }));
+    }
+
+    if (focusModeActive) { 
         requestAnimationFrame(() => {
             if (translationDisplayRef.current) {
                 translationDisplayRef.current.scrollIntoView({ behavior: 'instant', block: 'start' });
@@ -144,9 +149,10 @@ export default function LinguaFriendPage() {
 
 
   useEffect(() => {
-    window.addEventListener('zoomToAnalysisContent', handleZoomToAnalysisContent);
+    const eventHandler = () => handleZoomToAnalysisContent();
+    window.addEventListener('zoomToAnalysisContent', eventHandler);
     return () => {
-      window.removeEventListener('zoomToAnalysisContent', handleZoomToAnalysisContent);
+      window.removeEventListener('zoomToAnalysisContent', eventHandler);
     };
   }, [handleZoomToAnalysisContent]);
 
@@ -173,14 +179,14 @@ export default function LinguaFriendPage() {
   };
 
   const rightColumnSpanClass = 
-    (isContentScaled && isLeftColumnHidden)
+    (isContentScaled && isLeftColumnHidden) 
     ? 'lg:col-span-3' // Full width parent when zoomed
-    : isLeftColumnHidden // Not scaled, but left is hidden
-    ? 'lg:col-span-3' // Full width
+    : isLeftColumnHidden 
+    ? 'lg:col-span-3' // Full width if left is hidden but not scaled
     : 'lg:col-span-2'; // Default to 2/3 width
 
   const resultsContainerClasses = cn({
-    'lg:w-2/3 mx-auto': isContentScaled && isLeftColumnHidden, // Center with 2/3 width when zoomed
+    'lg:w-2/3 mx-auto': isContentScaled && isLeftColumnHidden, 
     'w-full': !(isContentScaled && isLeftColumnHidden),
   });
   
