@@ -35,12 +35,12 @@ function SubmitButton() {
   );
 }
 
-export function SentenceInputForm({ 
-  onAnalysisResult, 
-  initialState, 
-  serverAction, 
+export function SentenceInputForm({
+  onAnalysisResult,
+  initialState,
+  serverAction,
   currentFeatureToggles,
-  onOpenHistory 
+  onOpenHistory
 }: SentenceInputFormProps) {
   const [state, formAction] = useActionState(serverAction, initialState);
   const { toast } = useToast();
@@ -93,10 +93,10 @@ export function SentenceInputForm({
       }
     }
   };
-  
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     const formData = new FormData(event.currentTarget);
-    if (!formData.has('eli5Mode')) { 
+    if (!formData.has('eli5Mode')) {
         formData.append('eli5Mode', currentFeatureToggles.eli5Mode ? 'on' : 'off');
     }
     if (!formData.has('showImprovementSuggestions')) {
@@ -125,18 +125,17 @@ export function SentenceInputForm({
         <input type="hidden" name="eli5Mode" value={currentFeatureToggles.eli5Mode ? 'on' : 'off'} />
         <input type="hidden" name="showImprovementSuggestions" value={currentFeatureToggles.showImprovementSuggestions ? 'on' : 'off'} />
       </div>
-      <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:items-center gap-3">
-        <Button 
-            type="button" 
-            variant="outline" 
+      <div className="flex flex-col-reverse sm:flex-row sm:items-center gap-3">
+        <SubmitButton />
+        <Button
+            type="button"
+            variant="outline"
             size="icon"
-            onClick={onOpenHistory} 
-            className="order-last sm:order-first"
+            onClick={onOpenHistory}
             aria-label="Ver historial de análisis"
         >
           <HistoryIcon className="h-4 w-4" />
         </Button>
-        <SubmitButton />
       </div>
     </form>
   );
