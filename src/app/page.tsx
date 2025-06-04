@@ -70,8 +70,9 @@ export default function LinguaFriendPage() {
   const handleAnalysisFormSubmit = useCallback(async (result: ActionState) => {
     startTransition(async () => {
       setCurrentSentence(result.originalSentence || '');
-      setIsLeftColumnHidden(false); 
+      // Reset zoom/focus states on new analysis
       setIsContentScaled(false); 
+      setIsLeftColumnHidden(false); 
 
       if (result.error) {
         setError(result.error);
@@ -88,7 +89,6 @@ export default function LinguaFriendPage() {
         setImprovementResult(result.improvementData);
         setError(null);
         
-
         let finalTranslatedSentence: string | undefined = undefined;
         if (analysisDataWithWordIds && result.originalSentence) {
           try {
@@ -116,35 +116,40 @@ export default function LinguaFriendPage() {
     });
   }, [startTransition, addHistoryItem]);
 
+  // Effect to scroll to content after analysis or history view, if not pending and not zoomed
   useEffect(() => {
-    if (!isPending) {
+    if (!isPending && !isContentScaled) { // Only auto-scroll if not in scaled/focus mode
       if (translationDisplayRef.current && currentSentence) {
         translationDisplayRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else if (resultsContainerRef.current && (analysisResult || improvementResult?.hasImprovements)) {
         resultsContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
-  }, [analysisResult, improvementResult, currentSentence, isPending]);
+  }, [analysisResult, improvementResult, currentSentence, isPending, isContentScaled]);
+
 
   const handleZoomToAnalysisContent = useCallback(() => {
-    let didScroll = false;
-    // Determine the primary scroll target
-    const scrollTarget = translationDisplayRef.current || 
-                         (resultsContainerRef.current && (analysisResult || improvementResult?.hasImprovements || currentSentence) ? resultsContainerRef.current : null);
-
-    if (scrollTarget) {
-      scrollTarget.scrollIntoView({ behavior: 'instant', block: 'start' });
-      didScroll = true;
+    // Only toggle if there's content to zoom into, or if currently zoomed (to allow unzooming)
+    if (analysisResult || improvementResult?.hasImprovements || currentSentence || isContentScaled || isLeftColumnHidden) {
+        setIsContentScaled(prev => !prev);
+        setIsLeftColumnHidden(prev => !prev);
     }
-    
-    // Only toggle scale/hide if a scroll target was found OR if there's analysis content to zoom into
-    // OR if we are currently scaled/hidden (to allow unzooming even if content disappeared)
-    if (didScroll || analysisResult || improvementResult?.hasImprovements || currentSentence || isContentScaled || isLeftColumnHidden) {
-       setIsContentScaled(prev => !prev);
-       setIsLeftColumnHidden(prev => !prev);
-    }
+  }, [analysisResult, improvementResult, currentSentence, isContentScaled, isLeftColumnHidden]);
 
-  }, [analysisResult, improvementResult, currentSentence, isContentScaled, isLeftColumnHidden]); 
+  // Effect to handle scrolling when zoom state changes
+  useEffect(() => {
+    if (isContentScaled && isLeftColumnHidden) { // When entering zoom/focus mode
+        // Wait for a tick to allow DOM to update from state changes
+        requestAnimationFrame(() => {
+            if (translationDisplayRef.current) {
+                translationDisplayRef.current.scrollIntoView({ behavior: 'instant', block: 'start' });
+            } else if (resultsContainerRef.current) {
+                resultsContainerRef.current.scrollIntoView({ behavior: 'instant', block: 'start' });
+            }
+        });
+    }
+  }, [isContentScaled, isLeftColumnHidden]);
+
 
   useEffect(() => {
     window.addEventListener('zoomToAnalysisContent', handleZoomToAnalysisContent);
@@ -171,6 +176,7 @@ export default function LinguaFriendPage() {
       setLoadedTranslation(item.translatedSentence);
       setError(null);
       setIsHistoryModalOpen(false); 
+      // Reset zoom/focus states when loading from history
       setIsContentScaled(false); 
       setIsLeftColumnHidden(false); 
     });
@@ -202,7 +208,8 @@ export default function LinguaFriendPage() {
 
           <div className={cn(
             "space-y-8 transition-all duration-300 ease-in-out",
-            isContentScaled ? "lg:col-span-2" : (isLeftColumnHidden ? "lg:col-span-3" : "lg:col-span-2")
+            // If zoomed OR left column is hidden (even if not zoomed), take full width.
+            (isContentScaled || isLeftColumnHidden) ? "lg:col-span-3" : "lg:col-span-2"
           )}>
             {isPending && (
               <div className="flex flex-col items-center justify-center p-10 bg-card rounded-lg shadow-md">
@@ -226,11 +233,14 @@ export default function LinguaFriendPage() {
                 ref={resultsContainerRef}
                 style={{
                   transform: isContentScaled ? 'scale(1.20)' : 'scale(1)',
-                  transformOrigin: 'top left', 
+                  // When scaled (implies left hidden and col-span-3), use 'top' for better centering.
+                  // Otherwise, 'top left' is appropriate for col-span-2.
+                  transformOrigin: isContentScaled ? 'top' : 'top left', 
                   transition: 'transform 0.3s ease-in-out',
                 }}
               >
-                {!isContentScaled && (
+                {/* Show SentenceGroupsDisplay ONLY if NOT in full zoom/focus mode */}
+                {!(isContentScaled && isLeftColumnHidden) && (
                   <SentenceGroupsDisplay
                       groups={sentenceGroups}
                       onCreateGroup={handleCreateSentenceGroup}
@@ -241,10 +251,13 @@ export default function LinguaFriendPage() {
                   />
                 )}
 
+                {/* Main Analysis Content OR Welcome Message */}
                 {(analysisResult || improvementResult?.hasImprovements || currentSentence ) ? (
                   <div className={cn(
                     "space-y-8",
-                    isContentScaled ? "mt-0" : "mt-8" 
+                     // If zoomed, SentenceGroupsDisplay is hidden, so analysis starts at mt-0.
+                     // If not zoomed, SentenceGroupsDisplay *might* be visible, so add mt-8.
+                    (isContentScaled && isLeftColumnHidden) ? "mt-0" : "mt-8" 
                   )}>
                     {currentSentence && (
                       <TranslationDisplay 
@@ -264,8 +277,9 @@ export default function LinguaFriendPage() {
                     )}
                   </div>
                 ) : (
-                  !isContentScaled && !sentenceGroups.length && ( 
-                    <Card className="shadow-md mt-8">
+                  // Welcome message placeholder: show if NOT zoomed AND no groups (or if groups are empty and it's the main content)
+                  !(isContentScaled && isLeftColumnHidden) && ( 
+                    <Card className="shadow-md mt-8"> {/* mt-8 to space below potentially empty SentenceGroupsDisplay header */}
                         <CardContent className="p-10 text-center">
                             <h2 className="text-2xl font-headline text-foreground/80">Bienvenido a LinguaFriend</h2>
                             <p className="mt-2 text-muted-foreground">
