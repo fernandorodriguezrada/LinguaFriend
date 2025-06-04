@@ -40,7 +40,10 @@ export default function LinguaFriendPage() {
   const [error, setError] = useState<string | null>(null);
   const [featureToggles, setFeatureToggles] = useState<FeatureToggleState>(initialFeatureToggles);
   const [isPending, startTransition] = useTransition();
+  
   const resultsContainerRef = useRef<HTMLDivElement>(null);
+  const translationDisplayRef = useRef<HTMLDivElement>(null);
+
 
   const {
     history,
@@ -91,10 +94,18 @@ export default function LinguaFriendPage() {
   }, [startTransition, addHistoryItem]);
 
   useEffect(() => {
-    if (resultsContainerRef.current && !isPending && (analysisResult || improvementResult?.hasImprovements || currentSentence)) {
-      resultsContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!isPending) {
+      if (translationDisplayRef.current && currentSentence) {
+        // Prioritize scrolling to translation display if it's available and we have a sentence
+        translationDisplayRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (resultsContainerRef.current && (analysisResult || improvementResult?.hasImprovements)) {
+        // Fallback scroll to the general results container if translation isn't the target
+        // or if there's no currentSentence but there are other results.
+        resultsContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   }, [analysisResult, improvementResult, currentSentence, isPending]);
+
 
   const handleCreateSentenceGroup = async (name: string, colorIdentifier: string): Promise<SentenceGroup | null> => {
     const newGroup = createGroup(name, colorIdentifier);
@@ -111,8 +122,7 @@ export default function LinguaFriendPage() {
       setAnalysisResult(item.analysis);
       setImprovementResult(item.improvement || null);
       setError(null);
-      setIsHistoryModalOpen(false); // Close history modal if open
-      // Scroll to results should be handled by the useEffect watching analysisResult
+      setIsHistoryModalOpen(false); 
     });
   };
 
@@ -168,7 +178,7 @@ export default function LinguaFriendPage() {
 
                 {(analysisResult || improvementResult?.hasImprovements || currentSentence ) ? (
                   <div className="space-y-8 mt-8">
-                    {currentSentence && <TranslationDisplay originalSentence={currentSentence} />}
+                    {currentSentence && <TranslationDisplay ref={translationDisplayRef} originalSentence={currentSentence} />}
                     {improvementResult && improvementResult.hasImprovements && (
                       <CommonMistakesDisplay improvement={improvementResult} />
                     )}
@@ -216,7 +226,7 @@ export default function LinguaFriendPage() {
         sentenceGroups={sentenceGroups}
         onCreateGroup={handleCreateSentenceGroup} 
         onAddHistoryItemsToGroup={addHistoryItemsToGroup}
-        onViewDetails={handleViewHistoryItemInGroup}
+        onViewDetails={handleViewHistoryItemInGroup} // This one now correctly triggers the main page view
       />
     </div>
   );
