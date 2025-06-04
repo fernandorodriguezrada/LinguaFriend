@@ -18,6 +18,7 @@ import { translateSentence } from '@/ai/flows/translate-sentence-flow';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { v4 as uuidv4 } from 'uuid';
+import { cn } from '@/lib/utils';
 
 const initialActionState: ActionState = {
   data: null,
@@ -46,6 +47,7 @@ export default function LinguaFriendPage() {
   const resultsContainerRef = useRef<HTMLDivElement>(null);
   const translationDisplayRef = useRef<HTMLDivElement>(null);
   const [isContentScaled, setIsContentScaled] = useState(false);
+  const [isLeftColumnHidden, setIsLeftColumnHidden] = useState(false);
 
 
   const {
@@ -68,6 +70,9 @@ export default function LinguaFriendPage() {
   const handleAnalysisFormSubmit = useCallback(async (result: ActionState) => {
     startTransition(async () => {
       setCurrentSentence(result.originalSentence || '');
+      setIsLeftColumnHidden(false); // Reset focus mode on new analysis
+      setIsContentScaled(false); // Reset scale on new analysis
+
       if (result.error) {
         setError(result.error);
         setAnalysisResult(null);
@@ -82,7 +87,7 @@ export default function LinguaFriendPage() {
         setAnalysisResult(analysisDataWithWordIds);
         setImprovementResult(result.improvementData);
         setError(null);
-        setIsContentScaled(false); // Reset scale on new analysis
+        
 
         let finalTranslatedSentence: string | undefined = undefined;
         if (analysisDataWithWordIds && result.originalSentence) {
@@ -131,9 +136,10 @@ export default function LinguaFriendPage() {
       didScroll = true;
     }
 
-    // Toggle zoom only if there's content to zoom or if we scrolled
+    // Toggle zoom and focus mode only if there's content or if we scrolled
     if (didScroll || analysisResult || improvementResult?.hasImprovements || currentSentence) {
        setIsContentScaled(prev => !prev);
+       setIsLeftColumnHidden(prev => !prev);
     }
 
   }, [analysisResult, improvementResult, currentSentence]); 
@@ -163,7 +169,8 @@ export default function LinguaFriendPage() {
       setLoadedTranslation(item.translatedSentence);
       setError(null);
       setIsHistoryModalOpen(false); 
-      setIsContentScaled(false); // Reset scale when loading new item from history/group
+      setIsContentScaled(false); // Reset scale when loading new item
+      setIsLeftColumnHidden(false); // Reset focus mode when loading new item
     });
   };
 
@@ -173,7 +180,10 @@ export default function LinguaFriendPage() {
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8 md:px-6 md:py-12">
         <div className="grid gap-12 lg:grid-cols-3">
-          <div className="lg:col-span-1 space-y-6">
+          <div className={cn(
+            "lg:col-span-1 space-y-6 transition-all duration-300 ease-in-out",
+            { "lg:hidden opacity-0": isLeftColumnHidden, "opacity-100": !isLeftColumnHidden }
+          )}>
             <Card className="shadow-xl">
               <CardContent className="p-6">
                 <SentenceInputForm
@@ -188,7 +198,10 @@ export default function LinguaFriendPage() {
             <FeatureToggleControls toggles={featureToggles} onToggleChange={setFeatureToggles} />
           </div>
 
-          <div className="lg:col-span-2 space-y-8">
+          <div className={cn(
+            "space-y-8 transition-all duration-300 ease-in-out",
+            isLeftColumnHidden ? "lg:col-span-3" : "lg:col-span-2"
+          )}>
             {isPending && (
               <div className="flex flex-col items-center justify-center p-10 bg-card rounded-lg shadow-md">
                 <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -211,11 +224,9 @@ export default function LinguaFriendPage() {
                 ref={resultsContainerRef}
                 style={{
                   transform: isContentScaled ? 'scale(1.15)' : 'scale(1)',
-                  transformOrigin: 'top left',
+                  transformOrigin: isLeftColumnHidden ? 'top' : 'top left', // Adjust origin when left column is hidden
                   transition: 'transform 0.3s ease-in-out',
                 }}
-                // Add a wrapper div if scaling causes layout issues with grid siblings
-                // Or adjust parent layout (lg:col-span-2) if necessary
               >
                  <SentenceGroupsDisplay
                     groups={sentenceGroups}
