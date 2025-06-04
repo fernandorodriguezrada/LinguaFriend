@@ -10,7 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { AnalysisDisplay } from '@/components/linguist/AnalysisDisplay';
 import { CommonMistakesDisplay } from '@/components/linguist/CommonMistakesDisplay';
-import type { AnalysisHistoryItem, FeatureToggleState, SentenceGroup } from '@/lib/types';
+import type { AnalysisHistoryItem, FeatureToggleState, SentenceGroup, PastelColor } from '@/lib/types';
 import { availablePastelColors } from '@/lib/types';
 import { Trash2, PlusCircle, Eye } from 'lucide-react';
 import { AddToGroupDialog } from '@/components/groups/AddToGroupDialog';
@@ -31,7 +31,7 @@ interface HistoryModalProps {
 
 const getGroupDotColorClass = (colorIdentifier?: string): string => {
   const color = availablePastelColors.find(c => c.identifier === colorIdentifier);
-  return color ? color.bgClass : 'bg-muted'; // bg-muted is a fallback
+  return color ? color.bgClass : 'bg-muted'; 
 };
 
 export function HistoryModal({
@@ -89,7 +89,9 @@ export function HistoryModal({
   };
 
   const handleCreateAndAdd = async (groupName: string) => {
-    const newGroup = await onCreateGroup(groupName, availablePastelColors[0].identifier); // Default color
+    // Find a default color or the first available one for the new group
+    const defaultColorIdentifier = availablePastelColors.find(c => c.identifier === 'default')?.identifier || availablePastelColors[0]?.identifier || 'default';
+    const newGroup = await onCreateGroup(groupName, defaultColorIdentifier); 
     const itemsToAdd = getSelectedHistoryItems();
     if (newGroup && itemsToAdd.length > 0) {
       onAddHistoryItemsToGroup(newGroup.id, itemsToAdd);
@@ -133,7 +135,7 @@ export function HistoryModal({
                 <p className="text-muted-foreground text-center py-8">No hay historial disponible.</p>
               ) : (
                 historyItems.map(item => {
-                  const groupForItem = sentenceGroups.find(g => g.historyItems.some(hi => hi.id === item.id));
+                  const groupForItem = sentenceGroups.find(g => Array.isArray(g.historyItems) && g.historyItems.some(hi => hi.id === item.id));
                   const dotBgClass = groupForItem ? getGroupDotColorClass(groupForItem.colorIdentifier) : '';
                   const isDefaultColorGroup = groupForItem && (!groupForItem.colorIdentifier || groupForItem.colorIdentifier === 'default');
 
@@ -152,26 +154,27 @@ export function HistoryModal({
                             <Label htmlFor={`history-select-${item.id}`} className="cursor-pointer">
                                 <CardTitle id={`history-title-${item.id}`} className="text-lg truncate">{item.originalSentence}</CardTitle>
                             </Label>
-                            <CardDescription className="text-xs">
+                            <CardDescription className="text-xs"> 
                                 Analizado el: {new Date(item.timestamp).toLocaleString()}
                             </CardDescription>
                           </div>
                         </div>
-                        {groupForItem && (
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0 text-right mt-1">
+                      </CardHeader>
+                      <CardContent className="pt-0 flex justify-between items-center">
+                         {groupForItem ? (
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
                             <span 
                               className={cn(
                                 "h-2.5 w-2.5 rounded-full inline-block", 
                                 dotBgClass,
-                                isDefaultColorGroup && "border border-border" // Add border for default color to make it visible
+                                isDefaultColorGroup && "border border-border" 
                               )}
                               title={`Grupo: ${groupForItem.name}`}
                             ></span>
-                            <span className="truncate max-w-[100px]" title={groupForItem.name}>{groupForItem.name}</span>
+                            <span className="truncate max-w-[150px]" title={groupForItem.name}>{groupForItem.name}</span>
                           </div>
-                        )}
-                      </CardHeader>
-                      <CardContent className="pt-0 flex justify-end items-center">
+                        ) : <div className="flex-1"></div> /* Placeholder to keep buttons to the right */}
+                        
                         <div className="flex gap-2">
                           <Button variant="secondary" size="sm" onClick={() => handleViewDetailsOnPage(item)}>
                             <Eye className="mr-2 h-4 w-4" /> Ver en Página
@@ -223,7 +226,7 @@ export function HistoryModal({
           isOpen={isAddToGroupDialogOpen}
           onClose={() => setIsAddToGroupDialogOpen(false)}
           groups={sentenceGroups}
-          onCreateGroup={handleCreateAndAdd}
+          onCreateGroup={handleCreateAndAdd} // Passes (name, colorIdentifier)
           onSelectGroup={handleConfirmAddToGroup}
           itemCount={selectedHistoryItemIds.length}
         />
