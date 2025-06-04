@@ -67,11 +67,15 @@ export default function LinguaFriendPage() {
     removeHistoryItemFromGroup,
   } = useSentenceGroups();
 
+  const resetFocusAndScale = () => {
+    setIsContentScaled(false);
+    setIsLeftColumnHidden(false);
+  };
+
   const handleAnalysisFormSubmit = useCallback(async (result: ActionState) => {
     startTransition(async () => {
       setCurrentSentence(result.originalSentence || '');
-      setIsContentScaled(false); 
-      setIsLeftColumnHidden(false); 
+      resetFocusAndScale();
 
       if (result.error) {
         setError(result.error);
@@ -116,11 +120,12 @@ export default function LinguaFriendPage() {
   }, [startTransition, addHistoryItem]);
 
   const handleZoomToAnalysisContent = useCallback(() => {
-    if (analysisResult || improvementResult?.hasImprovements || currentSentence || isContentScaled || isLeftColumnHidden) {
+    // Toggle states, the useEffect will handle the scroll/focus
+    if (analysisResult || improvementResult?.hasImprovements || currentSentence) {
         setIsContentScaled(prev => !prev);
         setIsLeftColumnHidden(prev => !prev);
     }
-  }, [analysisResult, improvementResult, currentSentence, isContentScaled, isLeftColumnHidden]);
+  }, [analysisResult, improvementResult, currentSentence]);
 
   useEffect(() => {
     if (isContentScaled && isLeftColumnHidden) { 
@@ -160,12 +165,27 @@ export default function LinguaFriendPage() {
       setLoadedTranslation(item.translatedSentence);
       setError(null);
       setIsHistoryModalOpen(false); 
-      setIsContentScaled(false); 
-      setIsLeftColumnHidden(false); 
+      resetFocusAndScale();
     });
   };
 
-  const rightColumnSpanClass = isContentScaled ? 'lg:col-span-2' : (isLeftColumnHidden ? 'lg:col-span-3' : 'lg:col-span-2');
+  // Dynamically determine the column span for the right content area
+  const rightColumnSpanClass = 
+    (isContentScaled && isLeftColumnHidden) || (!isContentScaled && isLeftColumnHidden)
+    ? 'lg:col-span-3' // Full width if zoomed or if left is hidden (and not zoomed)
+    : 'lg:col-span-2'; // Default to 2/3 width
+
+  // Dynamically set classes for the results container itself for centering when zoomed
+  const resultsContainerClasses = cn({
+    'lg:w-2/3 mx-auto': isContentScaled && isLeftColumnHidden, // Center with 2/3 width when zoomed
+    'w-full': !(isContentScaled && isLeftColumnHidden), // Full width of its parent cell otherwise
+  });
+  
+  const scaleStyle = {
+    transform: isContentScaled ? 'scale(1.20)' : 'scale(1)',
+    transformOrigin: isContentScaled && isLeftColumnHidden ? 'top' : 'top left',
+    transition: 'transform 0.3s ease-in-out',
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -212,15 +232,8 @@ export default function LinguaFriendPage() {
             )}
 
             {!isPending && !error && (
-              <div 
-                ref={resultsContainerRef}
-                style={{
-                  transform: isContentScaled ? 'scale(1.20)' : 'scale(1)',
-                  transformOrigin: isContentScaled ? 'top left' : 'top left', 
-                  transition: 'transform 0.3s ease-in-out',
-                }}
-              >
-                {!(isContentScaled && isLeftColumnHidden) && (
+              <>
+                {!(isContentScaled && isLeftColumnHidden) && ( // Hide SentenceGroupsDisplay when in full zoom/focus mode
                   <SentenceGroupsDisplay
                       groups={sentenceGroups}
                       onCreateGroup={handleCreateSentenceGroup}
@@ -230,48 +243,55 @@ export default function LinguaFriendPage() {
                       onViewHistoryItemDetails={handleViewHistoryItemInGroup}
                   />
                 )}
-
-                {(analysisResult || improvementResult?.hasImprovements || currentSentence ) ? (
-                  <div className={cn(
-                    "space-y-8",
-                    (isContentScaled && isLeftColumnHidden) ? "mt-0" : "mt-8" 
-                  )}>
-                    {currentSentence && (
-                      <TranslationDisplay 
-                        ref={translationDisplayRef} 
-                        originalSentence={currentSentence} 
-                        loadedTranslation={loadedTranslation} 
-                      />
-                    )}
-                    {improvementResult && improvementResult.hasImprovements && (
-                      <CommonMistakesDisplay improvement={improvementResult} />
-                    )}
-                    {analysisResult && (
-                      <AnalysisDisplay
-                        analysis={analysisResult}
-                        featureToggles={featureToggles}
-                      />
-                    )}
-                  </div>
-                ) : (
-                  !(isContentScaled && isLeftColumnHidden) && ( 
-                    <Card className="shadow-md mt-8">
-                        <CardContent className="p-10 text-center">
-                            <h2 className="text-2xl font-headline text-foreground/80">Bienvenido a LinguaFriend</h2>
-                            <p className="mt-2 text-muted-foreground">
-                                Escribe una oración en inglés en el panel de la izquierda y presiona "Analizar Oración" para comenzar.
-                            </p>
-                             <img
-                               src="https://placehold.co/600x400.png"
-                               alt="Image illustrating confusing English words or grammar concepts"
-                               data-ai-hint="english learning grammar"
-                               className="mt-6 rounded-lg mx-auto shadow-lg border-2 border-primary/90"
-                             />
-                        </CardContent>
-                    </Card>
-                  )
-                )}
-              </div>
+                
+                <div 
+                  ref={resultsContainerRef}
+                  className={resultsContainerClasses}
+                  style={scaleStyle}
+                >
+                  {(analysisResult || improvementResult?.hasImprovements || currentSentence ) ? (
+                    <div className={cn(
+                      "space-y-8",
+                      (isContentScaled && isLeftColumnHidden) ? "mt-0" : "mt-8" 
+                    )}>
+                      {currentSentence && (
+                        <TranslationDisplay 
+                          ref={translationDisplayRef} 
+                          originalSentence={currentSentence} 
+                          loadedTranslation={loadedTranslation} 
+                        />
+                      )}
+                      {improvementResult && improvementResult.hasImprovements && (
+                        <CommonMistakesDisplay improvement={improvementResult} />
+                      )}
+                      {analysisResult && (
+                        <AnalysisDisplay
+                          analysis={analysisResult}
+                          featureToggles={featureToggles}
+                        />
+                      )}
+                    </div>
+                  ) : (
+                     // Show welcome message only if not in a zoomed state where left panel is hidden (implies content *should* be there)
+                    !(isContentScaled && isLeftColumnHidden) && (
+                      <Card className="shadow-md mt-8">
+                          <CardContent className="p-10 text-center">
+                              <h2 className="text-2xl font-headline text-foreground/80">Bienvenido a LinguaFriend</h2>
+                              <p className="mt-2 text-muted-foreground">
+                                  Escribe una oración en inglés en el panel de la izquierda y presiona "Analizar Oración" para comenzar.
+                              </p>
+                               <img
+                                 src="https://placehold.co/600x400.png"
+                                 alt="Image illustrating confusing English words or grammar concepts"
+                                 data-ai-hint="english learning grammar"
+                                 className="mt-6 rounded-lg mx-auto shadow-lg border-2 border-primary/90"
+                               />
+                          </CardContent>
+                      </Card>
+                    )
+                  )}
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -295,4 +315,6 @@ export default function LinguaFriendPage() {
     </div>
   );
 }
+    
+
     
