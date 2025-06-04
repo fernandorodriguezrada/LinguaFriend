@@ -160,7 +160,7 @@ export function HistoryModal({
                           </div>
                         </div>
                       </CardHeader>
-                      <CardContent className="pt-0 flex justify-between items-center">
+                      <CardContent className="pt-0 flex justify-between items-end">
                          {groupForItem ? (
                           <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0"> {/* Increased gap and text size */}
                             <span 
