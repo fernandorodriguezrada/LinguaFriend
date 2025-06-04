@@ -15,8 +15,9 @@ import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
 import { useSentenceGroups } from '@/hooks/useSentenceGroups';
 import { handleAnalyzeSentence, type ActionState } from './actions';
 import { translateSentence } from '@/ai/flows/translate-sentence-flow';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle, ZoomOut } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { v4 as uuidv4 } from 'uuid';
 import { cn } from '@/lib/utils';
 
@@ -120,12 +121,14 @@ export default function LinguaFriendPage() {
   }, [startTransition, addHistoryItem]);
 
   const handleZoomToAnalysisContent = useCallback(() => {
-    // Toggle states, the useEffect will handle the scroll/focus
     if (analysisResult || improvementResult?.hasImprovements || currentSentence) {
         setIsContentScaled(prev => !prev);
         setIsLeftColumnHidden(prev => !prev);
+    } else if (isContentScaled || isLeftColumnHidden) { // Allow exiting focus mode even if content disappeared
+        setIsContentScaled(false);
+        setIsLeftColumnHidden(false);
     }
-  }, [analysisResult, improvementResult, currentSentence]);
+  }, [analysisResult, improvementResult, currentSentence, isContentScaled, isLeftColumnHidden]);
 
   useEffect(() => {
     if (isContentScaled && isLeftColumnHidden) { 
@@ -169,21 +172,21 @@ export default function LinguaFriendPage() {
     });
   };
 
-  // Dynamically determine the column span for the right content area
   const rightColumnSpanClass = 
-    (isContentScaled && isLeftColumnHidden) || (!isContentScaled && isLeftColumnHidden)
-    ? 'lg:col-span-3' // Full width if zoomed or if left is hidden (and not zoomed)
+    (isContentScaled && isLeftColumnHidden)
+    ? 'lg:col-span-3' // Full width parent when zoomed
+    : isLeftColumnHidden // Not scaled, but left is hidden
+    ? 'lg:col-span-3' // Full width
     : 'lg:col-span-2'; // Default to 2/3 width
 
-  // Dynamically set classes for the results container itself for centering when zoomed
   const resultsContainerClasses = cn({
     'lg:w-2/3 mx-auto': isContentScaled && isLeftColumnHidden, // Center with 2/3 width when zoomed
-    'w-full': !(isContentScaled && isLeftColumnHidden), // Full width of its parent cell otherwise
+    'w-full': !(isContentScaled && isLeftColumnHidden),
   });
   
   const scaleStyle = {
     transform: isContentScaled ? 'scale(1.20)' : 'scale(1)',
-    transformOrigin: isContentScaled && isLeftColumnHidden ? 'top' : 'top left',
+    transformOrigin: (isContentScaled && isLeftColumnHidden) ? 'top' : 'top left',
     transition: 'transform 0.3s ease-in-out',
   };
 
@@ -233,7 +236,7 @@ export default function LinguaFriendPage() {
 
             {!isPending && !error && (
               <>
-                {!(isContentScaled && isLeftColumnHidden) && ( // Hide SentenceGroupsDisplay when in full zoom/focus mode
+                {!(isContentScaled && isLeftColumnHidden) && ( 
                   <SentenceGroupsDisplay
                       groups={sentenceGroups}
                       onCreateGroup={handleCreateSentenceGroup}
@@ -272,7 +275,6 @@ export default function LinguaFriendPage() {
                       )}
                     </div>
                   ) : (
-                     // Show welcome message only if not in a zoomed state where left panel is hidden (implies content *should* be there)
                     !(isContentScaled && isLeftColumnHidden) && (
                       <Card className="shadow-md mt-8">
                           <CardContent className="p-10 text-center">
@@ -312,6 +314,18 @@ export default function LinguaFriendPage() {
         onAddHistoryItemsToGroup={addHistoryItemsToGroup}
         onViewDetails={handleViewHistoryItemInGroup}
       />
+
+      {isContentScaled && isLeftColumnHidden && (
+        <Button
+          variant="default"
+          size="icon"
+          className="fixed bottom-6 right-6 z-50 h-12 w-12 rounded-md shadow-lg"
+          onClick={handleZoomToAnalysisContent}
+          aria-label="Salir del modo enfoque"
+        >
+          <ZoomOut className="h-6 w-6" />
+        </Button>
+      )}
     </div>
   );
 }
