@@ -30,7 +30,7 @@ const initialFeatureToggles: FeatureToggleState = {
   showSynonyms: true,
   showUsageTips: true,
   focusOnVerbs: false,
-  eli5Mode: false,
+  eli5Mode: true, // Changed to true
   showImprovementSuggestions: true,
 };
 

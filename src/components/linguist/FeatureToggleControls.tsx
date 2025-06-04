@@ -5,7 +5,7 @@ import type { FeatureToggleState } from '@/lib/types';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ListFilter, Brain, Wand2 } from 'lucide-react'; // Added Wand2 for suggestions
+import { ListFilter, Brain, Wand2, Lightbulb, Target, BookCopy } from 'lucide-react';
 
 interface FeatureToggleControlsProps {
   toggles: FeatureToggleState;
@@ -26,42 +26,6 @@ export function FeatureToggleControls({ toggles, onToggleChange }: FeatureToggle
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center justify-between space-x-2 p-2 rounded-md hover:bg-muted/50 transition-colors">
-          <Label htmlFor="showSynonyms" className="text-base cursor-pointer flex items-center gap-2">
-            Mostrar Sinónimos
-          </Label>
-          <Switch
-            id="showSynonyms"
-            name="showSynonyms"
-            checked={toggles.showSynonyms}
-            onCheckedChange={() => handleToggle('showSynonyms')}
-            aria-label="Mostrar u ocultar sinónimos"
-          />
-        </div>
-        <div className="flex items-center justify-between space-x-2 p-2 rounded-md hover:bg-muted/50 transition-colors">
-          <Label htmlFor="showUsageTips" className="text-base cursor-pointer flex items-center gap-2">
-            Mostrar Consejos de Uso
-          </Label>
-          <Switch
-            id="showUsageTips"
-            name="showUsageTips"
-            checked={toggles.showUsageTips}
-            onCheckedChange={() => handleToggle('showUsageTips')}
-            aria-label="Mostrar u ocultar consejos de uso"
-          />
-        </div>
-        <div className="flex items-center justify-between space-x-2 p-2 rounded-md hover:bg-muted/50 transition-colors">
-          <Label htmlFor="focusOnVerbs" className="text-base cursor-pointer flex items-center gap-2">
-            Enfocar en Verbos
-          </Label>
-          <Switch
-            id="focusOnVerbs"
-            name="focusOnVerbs"
-            checked={toggles.focusOnVerbs}
-            onCheckedChange={() => handleToggle('focusOnVerbs')}
-            aria-label="Enfocar el análisis solo en verbos"
-          />
-        </div>
         <div className="flex items-center justify-between space-x-2 p-2 rounded-md hover:bg-muted/50 transition-colors">
           <Label htmlFor="eli5Mode" className="text-base cursor-pointer flex items-center gap-2">
             <Brain className="h-4 w-4 text-blue-500" /> Explicación Sencilla (ELI5)
@@ -84,6 +48,42 @@ export function FeatureToggleControls({ toggles, onToggleChange }: FeatureToggle
             checked={toggles.showImprovementSuggestions}
             onCheckedChange={() => handleToggle('showImprovementSuggestions')}
             aria-label="Mostrar u ocultar sugerencias de mejora de oración"
+          />
+        </div>
+        <div className="flex items-center justify-between space-x-2 p-2 rounded-md hover:bg-muted/50 transition-colors">
+          <Label htmlFor="showUsageTips" className="text-base cursor-pointer flex items-center gap-2">
+            <Lightbulb className="h-4 w-4 text-yellow-500" /> Mostrar Consejos de Uso
+          </Label>
+          <Switch
+            id="showUsageTips"
+            name="showUsageTips"
+            checked={toggles.showUsageTips}
+            onCheckedChange={() => handleToggle('showUsageTips')}
+            aria-label="Mostrar u ocultar consejos de uso"
+          />
+        </div>
+        <div className="flex items-center justify-between space-x-2 p-2 rounded-md hover:bg-muted/50 transition-colors">
+          <Label htmlFor="focusOnVerbs" className="text-base cursor-pointer flex items-center gap-2">
+            <Target className="h-4 w-4 text-red-500" /> Enfocar en Verbos
+          </Label>
+          <Switch
+            id="focusOnVerbs"
+            name="focusOnVerbs"
+            checked={toggles.focusOnVerbs}
+            onCheckedChange={() => handleToggle('focusOnVerbs')}
+            aria-label="Enfocar el análisis solo en verbos"
+          />
+        </div>
+        <div className="flex items-center justify-between space-x-2 p-2 rounded-md hover:bg-muted/50 transition-colors">
+          <Label htmlFor="showSynonyms" className="text-base cursor-pointer flex items-center gap-2">
+            <BookCopy className="h-4 w-4 text-green-500" /> Mostrar Sinónimos
+          </Label>
+          <Switch
+            id="showSynonyms"
+            name="showSynonyms"
+            checked={toggles.showSynonyms}
+            onCheckedChange={() => handleToggle('showSynonyms')}
+            aria-label="Mostrar u ocultar sinónimos"
           />
         </div>
       </CardContent>
