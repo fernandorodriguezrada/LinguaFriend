@@ -63,18 +63,19 @@ export function EditGroupDialog({ isOpen, onClose, groupToEdit, onUpdateGroup }:
           <div className="grid grid-cols-4 items-start gap-4">
             <Label className="text-right pt-2">Color</Label>
             <ScrollArea className="col-span-3 h-[100px] rounded-md border">
-              <div className="grid grid-cols-4 gap-2 p-2">
+              <div className="grid grid-cols-4 gap-2 p-2"> {/* Added p-2 here for padding inside scroll area */}
                 {availablePastelColors.map((color: PastelColor) => (
                   <Button
                     key={color.identifier}
                     className={cn(
                       "h-8 w-8 p-0 rounded-full flex items-center justify-center", // Base layout
                       color.bgClass, // Pastel background
+                      `hover:${color.bgClass}`, // Explicitly set hover background to be the same to prevent color change
                       "border border-foreground/25", // Darker default border
                       "transition-transform duration-150 ease-in-out", // Always allow smooth transitions for scale
                       selectedColorIdentifier === color.identifier
                         ? "ring-2 ring-ring ring-offset-background ring-offset-2" // IF SELECTED: Apply ring
-                        : "hover:scale-125", // IF NOT SELECTED: Apply hover scale
+                        : "hover:scale-110", // IF NOT SELECTED: Apply hover scale (reduced)
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-offset-2" // Standard focus for all
                     )}
                     onClick={() => setSelectedColorIdentifier(color.identifier)}
@@ -83,8 +84,10 @@ export function EditGroupDialog({ isOpen, onClose, groupToEdit, onUpdateGroup }:
                     {selectedColorIdentifier === color.identifier && (
                        <Check className={cn(
                           "h-4 w-4",
-                          color.identifier === 'default' ? 'text-foreground' :
-                          (color.identifier === 'yellow' || color.identifier === 'lime' ? 'text-neutral-800 dark:text-neutral-200' : 'text-white mix-blend-difference')
+                           color.identifier === 'default' ? 'text-foreground' : // Default checkmark color
+                           (color.identifier === 'yellow' || color.identifier === 'lime' || color.identifier === 'pink' || color.identifier === 'orange')
+                             ? 'text-neutral-800 dark:text-neutral-700' // Darker check for very light pastels
+                             : 'text-white mix-blend-difference' // White checkmark with blend for others
                       )} />
                     )}
                   </Button>
