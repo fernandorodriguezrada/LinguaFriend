@@ -1,7 +1,15 @@
-import { Sparkles } from 'lucide-react';
+
+import { Sparkles, ZoomIn } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { Button } from '@/components/ui/button';
 
 export function Header() {
+  const handleZoomClick = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('zoomToAnalysisContent'));
+    }
+  };
+
   return (
     <header className="py-4 px-6 border-b border-border/40">
       <div className="container mx-auto flex items-center justify-between">
@@ -11,7 +19,12 @@ export function Header() {
             LinguaFriend
           </h1>
         </div>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={handleZoomClick} aria-label="Zoom to content">
+            <ZoomIn className="h-[1.2rem] w-[1.2rem]" />
+          </Button>
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );

@@ -14,7 +14,7 @@ import { SentenceGroupsDisplay } from '@/components/groups/SentenceGroupsDisplay
 import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
 import { useSentenceGroups } from '@/hooks/useSentenceGroups';
 import { handleAnalyzeSentence, type ActionState } from './actions';
-import { translateSentence } from '@/ai/flows/translate-sentence-flow'; // Import translateSentence
+import { translateSentence } from '@/ai/flows/translate-sentence-flow';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { v4 as uuidv4 } from 'uuid';
@@ -30,7 +30,7 @@ const initialFeatureToggles: FeatureToggleState = {
   showSynonyms: true,
   showUsageTips: true,
   focusOnVerbs: false,
-  eli5Mode: true, // Changed to true
+  eli5Mode: true,
   showImprovementSuggestions: true,
 };
 
@@ -38,7 +38,7 @@ export default function LinguaFriendPage() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult>(null);
   const [improvementResult, setImprovementResult] = useState<ImprovementResult>(null);
   const [currentSentence, setCurrentSentence] = useState<string>('');
-  const [loadedTranslation, setLoadedTranslation] = useState<string | undefined>(undefined); // For providing saved translations
+  const [loadedTranslation, setLoadedTranslation] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const [featureToggles, setFeatureToggles] = useState<FeatureToggleState>(initialFeatureToggles);
   const [isPending, startTransition] = useTransition();
@@ -87,10 +87,10 @@ export default function LinguaFriendPage() {
           try {
             const translationAPIResult = await translateSentence({ sentence: result.originalSentence });
             finalTranslatedSentence = translationAPIResult.translatedSentence;
-            setLoadedTranslation(finalTranslatedSentence); // Set for immediate display
+            setLoadedTranslation(finalTranslatedSentence);
           } catch (e) {
             console.error("Failed to fetch translation for history:", e);
-            setLoadedTranslation(undefined); // Clear if fetch fails during new analysis
+            setLoadedTranslation(undefined);
           }
 
           const historyEntry: AnalysisHistoryItem = {
@@ -99,11 +99,11 @@ export default function LinguaFriendPage() {
             analysis: analysisDataWithWordIds,
             improvement: result.improvementData,
             timestamp: Date.now(),
-            translatedSentence: finalTranslatedSentence, // Save translation
+            translatedSentence: finalTranslatedSentence,
           };
           addHistoryItem(historyEntry);
         } else {
-           setLoadedTranslation(undefined); // No analysis, no translation
+           setLoadedTranslation(undefined);
         }
       }
     });
@@ -118,6 +118,22 @@ export default function LinguaFriendPage() {
       }
     }
   }, [analysisResult, improvementResult, currentSentence, isPending]);
+
+  const handleZoomToAnalysisContent = useCallback(() => {
+    if (translationDisplayRef.current) {
+      translationDisplayRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (resultsContainerRef.current) {
+      resultsContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    // If neither is available, do nothing.
+  }, []); // Dependencies are stable refs
+
+  useEffect(() => {
+    window.addEventListener('zoomToAnalysisContent', handleZoomToAnalysisContent);
+    return () => {
+      window.removeEventListener('zoomToAnalysisContent', handleZoomToAnalysisContent);
+    };
+  }, [handleZoomToAnalysisContent]);
 
 
   const handleCreateSentenceGroup = async (name: string, colorIdentifier: string): Promise<SentenceGroup | null> => {
@@ -134,7 +150,7 @@ export default function LinguaFriendPage() {
       setCurrentSentence(item.originalSentence);
       setAnalysisResult(item.analysis);
       setImprovementResult(item.improvement || null);
-      setLoadedTranslation(item.translatedSentence); // Load saved translation
+      setLoadedTranslation(item.translatedSentence);
       setError(null);
       setIsHistoryModalOpen(false); 
     });
