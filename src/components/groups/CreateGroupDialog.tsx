@@ -58,20 +58,30 @@ export function CreateGroupDialog({ isOpen, onClose, onCreateGroup }: CreateGrou
           <div className="grid grid-cols-4 items-start gap-4">
             <Label className="text-right pt-2">Color</Label>
             <ScrollArea className="col-span-3 h-[100px] rounded-md border">
-              <div className="grid grid-cols-4 gap-2 p-2"> {/* Added p-2 here */}
+              <div className="grid grid-cols-4 gap-2 p-2">
                 {availablePastelColors.map((color: PastelColor) => (
                   <Button
                     key={color.identifier}
-                    variant="outline"
                     className={cn(
-                      "h-8 w-8 p-0 rounded-full flex items-center justify-center",
-                      color.bgClass,
-                      selectedColorIdentifier === color.identifier ? 'ring-2 ring-ring ring-offset-2' : ''
+                      "h-8 w-8 p-0 rounded-full flex items-center justify-center", // Base layout
+                      color.bgClass, // Pastel background
+                      "border border-foreground/25", // Darker default border
+                      "transition-transform duration-150 ease-in-out", // Always allow smooth transitions for scale
+                      selectedColorIdentifier === color.identifier
+                        ? "ring-2 ring-ring ring-offset-background ring-offset-2" // IF SELECTED: Apply ring
+                        : "hover:scale-125", // IF NOT SELECTED: Apply hover scale
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background focus-visible:ring-offset-2" // Standard focus for all
                     )}
                     onClick={() => setSelectedColorIdentifier(color.identifier)}
                     aria-label={color.name}
                   >
-                    {selectedColorIdentifier === color.identifier && <Check className={cn("h-4 w-4", color.identifier === 'default' ? 'text-foreground' : 'text-white mix-blend-difference')} />}
+                    {selectedColorIdentifier === color.identifier && (
+                      <Check className={cn(
+                          "h-4 w-4",
+                          color.identifier === 'default' ? 'text-foreground' :
+                          (color.identifier === 'yellow' || color.identifier === 'lime' ? 'text-neutral-800 dark:text-neutral-200' : 'text-white mix-blend-difference')
+                      )} />
+                    )}
                   </Button>
                 ))}
               </div>
